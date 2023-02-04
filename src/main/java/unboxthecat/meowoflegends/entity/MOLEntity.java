@@ -3,6 +3,7 @@ package unboxthecat.meowoflegends.entity;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Entity;
+import org.jetbrains.annotations.NotNull;
 import unboxthecat.meowoflegends.component.MOLComponent;
 import unboxthecat.meowoflegends.tag.MOLTag;
 
@@ -61,6 +62,11 @@ public class MOLEntity implements ConfigurationSerializable {
         components.forEach((name, component) -> component.onAttach(this));
     }
 
+    /**
+     * Serialization is buggy as fk, I may as well manually create it recursively.
+     * @return
+     */
+    @NotNull
     @Override
     public Map<String,Object> serialize() {
         Map<String, Object> data = new TreeMap<>();

@@ -1,24 +1,14 @@
 package unboxthecat.meowoflegends;
 
-import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.plugin.java.JavaPlugin;
-import unboxthecat.meowoflegends.component.MOLComponent;
-import unboxthecat.meowoflegends.component.generic.ManaComponent;
-import unboxthecat.meowoflegends.entity.MOLEntity;
 import unboxthecat.meowoflegends.handler.LoginMessageHandler;
 import unboxthecat.meowoflegends.handler.MOLPlayerLoginHandler;
-import unboxthecat.meowoflegends.tag.MOLTag;
 
 public final class MeowOfLegends extends JavaPlugin {
 
     @Override
     public void onEnable() {
         // Plugin startup logic
-        ConfigurationSerialization.registerClass(MOLEntity.class);
-        ConfigurationSerialization.registerClass(MOLComponent.class);
-        ConfigurationSerialization.registerClass(ManaComponent.class);
-        ConfigurationSerialization.registerClass(MOLTag.class);
-
         getServer().getPluginManager().registerEvents(new MOLPlayerLoginHandler(), this);
         getServer().getPluginManager().registerEvents(new LoginMessageHandler(), this);
     }

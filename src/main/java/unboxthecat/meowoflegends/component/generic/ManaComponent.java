@@ -6,6 +6,7 @@ import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 import unboxthecat.meowoflegends.GameState;
 import unboxthecat.meowoflegends.component.MOLComponent;
 import unboxthecat.meowoflegends.entity.MOLEntity;
@@ -20,8 +21,6 @@ public class ManaComponent implements MOLComponent {
             currentMana = Math.min(maxMana, currentMana + manaRegenerationRate);
             manaBar.setProgress(currentMana / maxMana);
             manaBar.setTitle(getManaTitle());
-
-            System.out.println("running mana");
         }
     }
 
@@ -47,6 +46,7 @@ public class ManaComponent implements MOLComponent {
         manaRegenerationTask = new ManaRegenerationTask();
     }
 
+    @NotNull
     @Override
     public Map<String, Object> serialize() {
         Map<String, Object> data = new TreeMap<>();
@@ -76,11 +76,9 @@ public class ManaComponent implements MOLComponent {
 
     @Override
     public void onAttach(MOLEntity owner) {
-        System.out.println("attached");
         if (owner.getEntity() instanceof Player) {
             manaBar.addPlayer((Player)owner.getEntity());
             manaBar.setVisible(true);
-            System.out.println("debug, set visible");
         }
         manaRegenerationTask.runTaskTimerAsynchronously(GameState.getPlugin(), 0, GameState.secondToTick(1.0));
     }
