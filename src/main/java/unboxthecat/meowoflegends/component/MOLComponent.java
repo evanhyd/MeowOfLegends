@@ -1,6 +1,9 @@
-package unboxthecat.meowoflegends;
+package unboxthecat.meowoflegends.component;
 
-public interface MOLComponent {
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import unboxthecat.meowoflegends.entity.MOLEntity;
+
+public interface MOLComponent extends ConfigurationSerializable {
     /**
      * Called when attaching to the MOLEntity.
      * @param owner the MOLEntity.
