@@ -1,0 +1,7 @@
+name: MeowOfLegends
+version: '${project.version}'
+main: unboxthecat.meowoflegends.MeowOfLegends
+api-version: 1.19
+authors: [ UnboxTheCat ]
+description: Meow Meow Meow
+website: https://github.com/evanhyd
