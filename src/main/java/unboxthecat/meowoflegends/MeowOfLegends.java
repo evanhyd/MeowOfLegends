@@ -3,6 +3,7 @@ package unboxthecat.meowoflegends;
 import org.bukkit.plugin.java.JavaPlugin;
 import unboxthecat.meowoflegends.handler.LoginMessageHandler;
 import unboxthecat.meowoflegends.handler.MOLPlayerLoginHandler;
+import unboxthecat.meowoflegends.handler.PlayerDeathMessageHandler;
 
 public final class MeowOfLegends extends JavaPlugin {
 
@@ -11,6 +12,7 @@ public final class MeowOfLegends extends JavaPlugin {
         // Plugin startup logic
         getServer().getPluginManager().registerEvents(new MOLPlayerLoginHandler(), this);
         getServer().getPluginManager().registerEvents(new LoginMessageHandler(), this);
+        getServer().getPluginManager().registerEvents(new PlayerDeathMessageHandler(), this);
     }
 
     @Override
