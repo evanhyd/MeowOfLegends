@@ -16,6 +16,10 @@ public class GameState implements Listener {
         return Math.max(1, (int)(Math.round(seconds * (double)SERVER_TICK_RATE)));
     }
 
+    public static double tickToSecond(int tick) {
+        return (double)tick / 20.0;
+    }
+
     public static Plugin getPlugin() {
         return MeowOfLegends.getPlugin(MeowOfLegends.class);
     }

@@ -1,9 +1,17 @@
 package unboxthecat.meowoflegends.component;
 
-import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import unboxthecat.meowoflegends.entity.MOLEntity;
 
-public interface MOLComponent extends ConfigurationSerializable {
+import java.util.Map;
+
+public interface MOLComponent {
+
+    /**
+     * Serialize the object into a map.
+     * @return serialized data.
+     */
+    Map<String, Object> serialize();
+
     /**
      * Called when attaching to the MOLEntity.
      * @param owner the MOLEntity.

@@ -6,7 +6,6 @@ import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.jetbrains.annotations.NotNull;
 import unboxthecat.meowoflegends.GameState;
 import unboxthecat.meowoflegends.component.MOLComponent;
 import unboxthecat.meowoflegends.entity.MOLEntity;
@@ -46,7 +45,6 @@ public class ManaComponent implements MOLComponent {
         manaRegenerationTask = new ManaRegenerationTask();
     }
 
-    @NotNull
     @Override
     public Map<String, Object> serialize() {
         Map<String, Object> data = new TreeMap<>();
@@ -55,6 +53,21 @@ public class ManaComponent implements MOLComponent {
         data.put("manaRegenerationRate", manaRegenerationRate);
         data.put("manaBar", manaBar);
         return data;
+    }
+
+    @Override
+    public void onAttach(MOLEntity owner) {
+        if (owner.getEntity() instanceof Player) {
+            manaBar.addPlayer((Player)owner.getEntity());
+            manaBar.setVisible(true);
+        }
+        manaRegenerationTask.runTaskTimerAsynchronously(GameState.getPlugin(), 0, GameState.secondToTick(1.0));
+    }
+
+    @Override
+    public void onRemove(MOLEntity owner) {
+        manaRegenerationTask.cancel();
+        manaBar.removeAll();
     }
 
     private String getManaTitle() {
@@ -72,20 +85,5 @@ public class ManaComponent implements MOLComponent {
 
     public double getManaRegenerationRate() {
         return manaRegenerationRate;
-    }
-
-    @Override
-    public void onAttach(MOLEntity owner) {
-        if (owner.getEntity() instanceof Player) {
-            manaBar.addPlayer((Player)owner.getEntity());
-            manaBar.setVisible(true);
-        }
-        manaRegenerationTask.runTaskTimerAsynchronously(GameState.getPlugin(), 0, GameState.secondToTick(1.0));
-    }
-
-    @Override
-    public void onRemove(MOLEntity owner) {
-        manaRegenerationTask.cancel();
-        manaBar.removeAll();
     }
 }

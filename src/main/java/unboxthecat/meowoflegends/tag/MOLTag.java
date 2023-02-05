@@ -1,8 +1,8 @@
 package unboxthecat.meowoflegends.tag;
 
-import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import java.util.Map;
 
-public interface MOLTag extends ConfigurationSerializable {
-
+public interface MOLTag {
+    Map<String, Object> serialize();
 }
 
