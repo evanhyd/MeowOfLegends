@@ -7,8 +7,6 @@ import org.jetbrains.annotations.NotNull;
 import unboxthecat.meowoflegends.component.generic.MOLComponent;
 import unboxthecat.meowoflegends.tag.MOLTag;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
@@ -76,6 +74,22 @@ public class MOLEntity implements ConfigurationSerializable {
      */
     public MOLTag getTag(Class<?> tagClass) {
         return tags.get(tagClass.getName());
+    }
+
+    /**
+     * Get all MOLComponent from the MOLEntity.
+     * @return Map<String, MOLComponent> components
+     */
+    public @NotNull Map<String, MOLComponent> getComponents() {
+        return components;
+    }
+
+    /**
+     * Get all MOLTags from the MOLEntity.
+     * @return Map<String, MOLTag> tags
+     */
+    public @NotNull Map<String, MOLTag> getTags() {
+        return tags;
     }
 
     /**
