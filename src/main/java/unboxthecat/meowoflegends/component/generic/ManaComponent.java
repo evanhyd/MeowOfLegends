@@ -71,7 +71,7 @@ public class ManaComponent implements MOLComponent {
     }
 
     private String getManaTitle() {
-        String rate = (currentMana != maxMana ? (manaRegenerationRate >= 0.0 ? "+ " : "- ") + manaRegenerationRate + " ": "");
+        String rate = (currentMana < maxMana ? (manaRegenerationRate >= 0.0 ? "+ " : "- ") + manaRegenerationRate + " ": "");
         return String.format("Mana %.1f %s/ %.1f", currentMana, rate, maxMana);
     }
 
@@ -85,5 +85,9 @@ public class ManaComponent implements MOLComponent {
 
     public double getManaRegenerationRate() {
         return manaRegenerationRate;
+    }
+
+    public void consumeMana(double manaCost) {
+        currentMana = Math.max(0.0, currentMana - manaCost);
     }
 }

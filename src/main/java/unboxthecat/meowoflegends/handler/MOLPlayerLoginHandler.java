@@ -1,13 +1,11 @@
 package unboxthecat.meowoflegends.handler;
 
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import unboxthecat.meowoflegends.GameState;
+import unboxthecat.meowoflegends.component.BakuretsuMahou;
 import unboxthecat.meowoflegends.component.generic.ManaComponent;
 import unboxthecat.meowoflegends.entity.MOLEntity;
 
@@ -27,6 +25,7 @@ public class MOLPlayerLoginHandler implements Listener {
             } else {
                 molEntity = new MOLEntity(event.getPlayer());
                 molEntity.attachComponent(new ManaComponent(0.0, 50.0, 1.0));
+                molEntity.attachComponent(new BakuretsuMahou(BakuretsuMahou.COOLDOWN_SECONDS, BakuretsuMahou.MANA_PERCENT_COST, BakuretsuMahou.EXPLOSION_POWER));
             }
 
             GameState.getPlayers().put(event.getPlayer().getUniqueId(), molEntity);
