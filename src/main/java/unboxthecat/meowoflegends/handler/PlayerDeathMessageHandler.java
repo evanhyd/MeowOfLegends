@@ -1,7 +1,6 @@
 package unboxthecat.meowoflegends.handler;
 
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
@@ -21,128 +20,154 @@ public class PlayerDeathMessageHandler implements Listener {
         EntityDamageEvent.DamageCause damageCause = lastDamageEvent.getCause();
         switch (damageCause){
             case BLOCK_EXPLOSION:{
-                event.setDeathMessage(event.getEntity().getName() + "got hit by a meteorite\n");
+                event.setDeathMessage(ChatColor.RED + event.getEntity().getName() +
+                        ChatColor.RED + "got hit by a meteorite\n");
                 break;
             }
             case CONTACT:{
-                event.setDeathMessage(event.getEntity().getName() + " was squished by kittens");
+                event.setDeathMessage(ChatColor.RED + event.getEntity().getName() +
+                        ChatColor.RED + " was squished by kittens");
                 break;
             }
             case CRAMMING:{
-                event.setDeathMessage(event.getEntity().getName() + " was crammed away into a closet");
+                event.setDeathMessage(ChatColor.RED + event.getEntity().getName() +
+                        ChatColor.RED + " was crammed away into a closet");
                 break;
             }
             case CUSTOM:{
-                event.setDeathMessage(event.getEntity().getName() + " died of unknown causes");
+                event.setDeathMessage(ChatColor.RED + event.getEntity().getName() +
+                        ChatColor.RED + " died of unknown causes");
                 break;
             }
             case ENTITY_ATTACK:{
-                event.setDeathMessage(event.getEntity().getName() + " took an L");
+                event.setDeathMessage(ChatColor.RED + event.getEntity().getName() +
+                        ChatColor.RED + " took an L");
                 break;
             }
             case ENTITY_EXPLOSION:{
-                event.setDeathMessage(ChatColor.BOLD + "CREEPERS! aww man");
+                event.setDeathMessage(ChatColor.RED + "CREEPERS! aww man");
                 break;
             }
             case DRAGON_BREATH:{
-                event.setDeathMessage(event.getEntity().getName() + " was melted by dragon's breath");
+                event.setDeathMessage(ChatColor.RED + event.getEntity().getName() +
+                        ChatColor.RED + " was melted by dragon's breath");
                 break;
             }
             case DROWNING:{
-                event.setDeathMessage(event.getEntity().getName() + " hit an iceberg and drowned");
+                event.setDeathMessage(ChatColor.RED + event.getEntity().getName() +
+                        ChatColor.RED + " hit an iceberg and drowned");
                 break;
             }
             case ENTITY_SWEEP_ATTACK:{
-                event.setDeathMessage(event.getEntity().getName() + " was swept out of this world by a broom");
+                event.setDeathMessage(ChatColor.RED + event.getEntity().getName() +
+                        ChatColor.RED + " was swept out of this world by a broom");
                 break;
             }
             case FALL:{
-                event.setDeathMessage(event.getEntity().getName() + " believed they could fly");
+                event.setDeathMessage(ChatColor.RED + event.getEntity().getName() +
+                        ChatColor.RED + " believed they could fly");
                 break;
             }
             case FALLING_BLOCK:{
-                event.setDeathMessage(event.getEntity().getName() + " was caught in rain of blocks");
+                event.setDeathMessage(ChatColor.RED + event.getEntity().getName() +
+                        ChatColor.RED + " was caught in rain of blocks");
                 break;
             }
             case FIRE:{
-                event.setDeathMessage(event.getEntity().getName() + " was roasted for dinner");
+                event.setDeathMessage(ChatColor.RED + event.getEntity().getName() +
+                        ChatColor.RED + " was roasted for dinner");
                 break;
             }
             case FIRE_TICK:{
-                event.setDeathMessage(event.getEntity().getName() + " was burnt to ashes");
+                event.setDeathMessage(ChatColor.RED + event.getEntity().getName() +
+                        ChatColor.RED + " was burnt to ashes");
                 break;
             }
             case FLY_INTO_WALL:{
-                event.setDeathMessage(event.getEntity().getName() + " flew into a wall");
+                event.setDeathMessage(ChatColor.RED + event.getEntity().getName() +
+                        ChatColor.RED + " flew into a wall");
                 break;
             }
             case FREEZE:{
-                event.setDeathMessage(event.getEntity().getName() + " was turned into ice cubes");
+                event.setDeathMessage(ChatColor.RED + event.getEntity().getName() +
+                        ChatColor.RED + " was turned into ice cubes");
                 break;
             }
             case HOT_FLOOR:{
-                event.setDeathMessage(event.getEntity().getName() + " legs melted");
+                event.setDeathMessage(ChatColor.RED + event.getEntity().getName() +
+                        ChatColor.RED + " melted");
                 break;
             }
             case LAVA:{
-                event.setDeathMessage(event.getEntity().getName() + " melted into a pool of lava");
+                event.setDeathMessage(ChatColor.RED + event.getEntity().getName() +
+                        ChatColor.RED + " melted into a pool of lava");
                 break;
             }
             case LIGHTNING:{
-                event.setDeathMessage(event.getEntity().getName() + " was blessed by lightning");
+                event.setDeathMessage(ChatColor.RED + event.getEntity().getName() +
+                        ChatColor.RED + " was blessed by lightning");
                 break;
             }
             case MAGIC:{
-                event.setDeathMessage(event.getEntity().getName() + " died to voldemort");
+                event.setDeathMessage(ChatColor.RED + event.getEntity().getName() +
+                        ChatColor.RED + " died to voldemort");
                 break;
             }
             case MELTING:{
-                event.setDeathMessage(event.getEntity().getName() + " turned into liquid");
+                event.setDeathMessage(ChatColor.RED + event.getEntity().getName() +
+                        ChatColor.RED + " turned into liquid");
                 break;
             }
             case POISON:{
-                event.setDeathMessage(event.getEntity().getName() + " was cursed to death");
+                event.setDeathMessage(ChatColor.RED + event.getEntity().getName() +
+                        ChatColor.RED + " was cursed to death");
                 break;
             }
             case PROJECTILE:{
-                event.setDeathMessage(event.getEntity().getName() + " was hit by projectiles");
+                event.setDeathMessage(ChatColor.RED + event.getEntity().getName() +
+                        ChatColor.RED + " was hit by projectiles");
                 break;
             }
             case SONIC_BOOM:{
-                event.setDeathMessage(event.getEntity().getName() + " was turned into a juke box");
+                event.setDeathMessage(ChatColor.RED + event.getEntity().getName() +
+                        ChatColor.RED + " was turned into a juke box");
                 break;
             }
             case STARVATION:{
-                event.setDeathMessage(event.getEntity().getName() + " died while searching for food");
+                event.setDeathMessage(ChatColor.RED + event.getEntity().getName() +
+                        ChatColor.RED + " died while searching for food");
                 break;
             }
             case SUFFOCATION:{
-                event.setDeathMessage(event.getEntity().getName() + " suffocated in body pillows");
+                event.setDeathMessage(ChatColor.RED + event.getEntity().getName() +
+                        ChatColor.RED +" suffocated in body pillows");
                 break;
             }
             case SUICIDE:{
-                event.setDeathMessage(event.getEntity().getName() + " killed themself");
+                event.setDeathMessage(ChatColor.RED + event.getEntity().getName() +
+                        ChatColor.RED + " killed themself");
                 break;
             }
             case THORNS:{
-                event.setDeathMessage(event.getEntity().getName() + " died to punching a hedgehog");
+                event.setDeathMessage(ChatColor.RED + event.getEntity().getName() +
+                        ChatColor.RED + " died to punching a hedgehog");
                 break;
             }
             case VOID:{
-                event.setDeathMessage(event.getEntity().getName() + " was trapped in a dark abyss");
+                event.setDeathMessage(ChatColor.RED + event.getEntity().getName() +
+                        ChatColor.RED + " was trapped in a dark abyss");
                 break;
             }
             case WITHER:{
-                event.setDeathMessage(event.getEntity().getName() + " withered away");
+                event.setDeathMessage(ChatColor.RED + event.getEntity().getName() + ChatColor.RED + " withered away");
                 break;
             }
             default: {
-                event.setDeathMessage(event.getEntity().getName() + "died");
+                event.setDeathMessage(ChatColor.RED + event.getEntity().getName() + ChatColor.RED + "died");
             }
         }
 
         //death coordinates
-        Location deathLocation = event.getEntity().getLocation();
         double deathLocationX = event.getEntity().getLocation().getX();
         double deathLocationY = event.getEntity().getLocation().getY();
         double deathLocationZ = event.getEntity().getLocation().getZ();
