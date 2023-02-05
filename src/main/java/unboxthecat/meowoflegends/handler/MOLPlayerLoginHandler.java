@@ -7,9 +7,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import unboxthecat.meowoflegends.GameState;
 import unboxthecat.meowoflegends.component.BakuretsuMahou;
 import unboxthecat.meowoflegends.component.generic.ManaComponent;
-import unboxthecat.meowoflegends.entity.MOLEntity;
-
-import java.util.Map;
+import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 
 public class MOLPlayerLoginHandler implements Listener {
 
@@ -17,15 +15,16 @@ public class MOLPlayerLoginHandler implements Listener {
     public void loadMOLPlayerData(PlayerJoinEvent event) {
         try
         {
+            GameState.getPlugin().reloadConfig();
             MOLEntity molEntity = null;
 
             if(event.getPlayer().hasPlayedBefore()) {
                 String uuid = event.getPlayer().getUniqueId().toString();
-                molEntity = new MOLEntity((Map<String, Object>)(GameState.getConfig().get(uuid)));
+                molEntity = (MOLEntity) GameState.getConfig().get(uuid);
             } else {
                 molEntity = new MOLEntity(event.getPlayer());
                 molEntity.attachComponent(new ManaComponent(0.0, 50.0, 1.0));
-                molEntity.attachComponent(new BakuretsuMahou(BakuretsuMahou.COOLDOWN_SECONDS, BakuretsuMahou.MANA_PERCENT_COST, BakuretsuMahou.EXPLOSION_POWER));
+                molEntity.attachComponent(new BakuretsuMahou(BakuretsuMahou.COOLDOWN_SECONDS, BakuretsuMahou.MANA_PERCENT_COST, BakuretsuMahou.EXPLOSION_YIELD));
             }
 
             GameState.getPlayers().put(event.getPlayer().getUniqueId(), molEntity);
@@ -38,7 +37,7 @@ public class MOLPlayerLoginHandler implements Listener {
     public void saveMOLPlayerData(PlayerQuitEvent event) {
         MOLEntity molEntity = GameState.getPlayers().get(event.getPlayer().getUniqueId());
 
-        GameState.getPlugin().getConfig().set(String.valueOf(event.getPlayer().getUniqueId()), molEntity.serialize());
+        GameState.getPlugin().getConfig().set(event.getPlayer().getUniqueId().toString(), molEntity);
         GameState.getPlugin().saveConfig();
 
         molEntity.destroy();

@@ -1,8 +1,5 @@
 package unboxthecat.meowoflegends.component.generic;
 
-import org.bukkit.event.Listener;
-import unboxthecat.meowoflegends.component.MOLComponent;
-
 public interface AbilityComponent extends MOLComponent {
 
     /**

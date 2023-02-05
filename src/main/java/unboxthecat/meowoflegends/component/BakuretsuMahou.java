@@ -1,22 +1,19 @@
 package unboxthecat.meowoflegends.component;
 
 import org.bukkit.Bukkit;
-import org.bukkit.World;
 import org.bukkit.entity.LargeFireball;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.util.EulerAngle;
-import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 import unboxthecat.meowoflegends.GameState;
 import unboxthecat.meowoflegends.component.generic.AbilityComponent;
 import unboxthecat.meowoflegends.component.generic.CooldownComponent;
 import unboxthecat.meowoflegends.component.generic.ManaComponent;
-import unboxthecat.meowoflegends.entity.MOLEntity;
+import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -35,15 +32,15 @@ public class BakuretsuMahou implements AbilityComponent, Listener {
 
     public BakuretsuMahou(Map<String, Object> data) {
         manaPercentCost = (double) data.get("manaPercentCost");
-        cooldownComponent = new CooldownComponent((Map<String, Object>) data.get("cooldownComponent"));
-        explosionPower = (float) data.get("explosionPower");
+        cooldownComponent = (CooldownComponent)(data.get("cooldownComponent"));
+        explosionPower = ((Double)data.get("explosionPower")).floatValue();
     }
 
     @Override
-    public Map<String, Object> serialize() {
+    public @NotNull Map<String, Object> serialize() {
         Map<String, Object> data = new TreeMap<>();
         data.put("manaPercentCost", manaPercentCost);
-        data.put("cooldownComponent", cooldownComponent.serialize());
+        data.put("cooldownComponent", cooldownComponent);
         data.put("explosionPower", explosionPower);
         return data;
     }
@@ -51,6 +48,7 @@ public class BakuretsuMahou implements AbilityComponent, Listener {
     @Override
     public void onAttach(MOLEntity owner) {
         this.owner = owner;
+        cooldownComponent.onAttach(owner);
         Bukkit.getServer().getPluginManager().registerEvents(this, GameState.getPlugin());
     }
 
@@ -63,7 +61,7 @@ public class BakuretsuMahou implements AbilityComponent, Listener {
     @EventHandler
     public void trigger(PlayerInteractEvent event) {
         Player player = event.getPlayer();
-        if (player.getUniqueId() == owner.getEntity().getUniqueId() &&
+        if (player.getUniqueId().equals(owner.getEntity().getUniqueId()) &&
             player.getInventory().getHeldItemSlot() == 0 &&
             (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK)) {
 
@@ -92,18 +90,12 @@ public class BakuretsuMahou implements AbilityComponent, Listener {
         fireball.setDirection(player.getEyeLocation().getDirection());
         fireball.setIsIncendiary(true);
         fireball.setGlowing(true);
-        fireball.setYield(10.0F);
-
-//        (Player)(owner.getEntity()).get
-//        World world  = owner.getEntity().getLocation().getWorld();
-//        if (world != null) {
-//            world.createExplosion(owner.getEntity().getLocation(), 100.0F, true, true, owner.getEntity());
-//        }
+        fireball.setYield(explosionPower);
     }
 
     //Tunable values
     public static final double COOLDOWN_SECONDS = 300.0;
-    public static final float EXPLOSION_POWER = 100.0F;
     public static final double MANA_PERCENT_COST = 1.0;
+    public static final float EXPLOSION_YIELD = 20.0F;
 
 }

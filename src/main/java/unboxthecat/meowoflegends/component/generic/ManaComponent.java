@@ -6,9 +6,9 @@ import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 import unboxthecat.meowoflegends.GameState;
-import unboxthecat.meowoflegends.component.MOLComponent;
-import unboxthecat.meowoflegends.entity.MOLEntity;
+import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -41,17 +41,16 @@ public class ManaComponent implements MOLComponent {
         currentMana = (double) data.get("currentMana");
         maxMana = (double) data.get("maxMana");
         manaRegenerationRate = (double) data.get("manaRegenerationRate");
-        manaBar = (BossBar) data.get("manaBar");
+        manaBar = Bukkit.getServer().createBossBar(getManaTitle(), BarColor.BLUE, BarStyle.SOLID);
         manaRegenerationTask = new ManaRegenerationTask();
     }
 
     @Override
-    public Map<String, Object> serialize() {
+    public @NotNull Map<String, Object> serialize() {
         Map<String, Object> data = new TreeMap<>();
         data.put("currentMana", currentMana);
         data.put("maxMana", maxMana);
         data.put("manaRegenerationRate", manaRegenerationRate);
-        data.put("manaBar", manaBar);
         return data;
     }
 

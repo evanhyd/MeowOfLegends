@@ -1,8 +1,10 @@
-package unboxthecat.meowoflegends.entity;
+package unboxthecat.meowoflegends.entity.generic;
 
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Entity;
-import unboxthecat.meowoflegends.component.MOLComponent;
+import org.jetbrains.annotations.NotNull;
+import unboxthecat.meowoflegends.component.generic.MOLComponent;
 import unboxthecat.meowoflegends.tag.MOLTag;
 
 import java.lang.reflect.Constructor;
@@ -11,7 +13,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
 
-public class MOLEntity {
+public class MOLEntity implements ConfigurationSerializable {
     private final Entity entity;
     private Map<String, MOLComponent> components;
     private Map<String, MOLTag> tags;
@@ -31,32 +33,9 @@ public class MOLEntity {
      * @param data serialized data.
      */
     public MOLEntity(Map<String, Object> data) {
-        this(Bukkit.getPlayer((UUID) data.get("UUID")));
-
-        Map<String, Map<String, Object>> componentsData = (Map<String, Map<String, Object>>) data.get("Components");
-        componentsData.forEach((name, componentData) -> {
-            try {
-                Class<?> componentClass = Class.forName(name);
-                Constructor<?> componentConstructor = componentClass.getConstructor(Map.class);
-                MOLComponent component = (MOLComponent)(componentConstructor.newInstance(componentData));
-                components.put(name, component);
-            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-        });
-
-        Map<String, Map<String, Object>> tagsData = (Map<String, Map<String, Object>>) data.get("Tags");
-        tagsData.forEach((name, tagData) -> {
-            try {
-                Class<?> tagClass = Class.forName(name);
-                Constructor<?> tagConstructor = tagClass.getConstructor(Map.class);
-                MOLTag tag = (MOLTag)(tagConstructor.newInstance(tagData));
-                tags.put(name, tag);
-            } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException | ClassNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-        });
-
+        this(Bukkit.getPlayer(UUID.fromString((String) data.get("UUID"))));
+        components = (Map<String, MOLComponent>) data.get("components");
+        tags = (Map<String, MOLTag>) data.get("tags");
         components.forEach((name, component) -> component.onAttach(this));
     }
 
@@ -64,17 +43,12 @@ public class MOLEntity {
      * Configurable Serialization is buggy as fk, I may as well manually create one.
      * @return serialized data.
      */
-    public Map<String,Object> serialize() {
+    @Override
+    public @NotNull Map<String,Object> serialize() {
         Map<String, Object> data = new TreeMap<>();
-        data.put("UUID", entity.getUniqueId());
-
-        Map<String, Object> serializedComponents = new TreeMap<>();
-        components.forEach((name, component) -> serializedComponents.put(name, component.serialize()));
-        data.put("Components", serializedComponents);
-
-        Map<String, Object> serializedTags = new TreeMap<>();
-        tags.forEach((name, tag) -> serializedTags.put(name, tag.serialize()));
-        data.put("Tags", serializedTags);
+        data.put("UUID", entity.getUniqueId().toString());
+        data.put("components", components);
+        data.put("tags", tags);
         return data;
     }
 
