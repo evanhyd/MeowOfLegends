@@ -154,4 +154,13 @@ public class MOLEntity implements ConfigurationSerializable {
     public void destroy() {
         components.forEach((name, component) -> component.onRemove(this));
     }
+
+
+    //Overriding toString() method of String Class
+    @Override
+    public String toString(){
+        return "";
+    }
+
+
 }

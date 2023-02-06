@@ -2,6 +2,17 @@ name: MeowOfLegends
 version: '${project.version}'
 main: unboxthecat.meowoflegends.MeowOfLegends
 api-version: 1.19
-authors: [ UnboxTheCat ]
-description: Meow Meow Meow
+authors: [ UnboxTheCat, Yarh ]
+description: Meow Meow Meow Explosion!
 website: https://github.com/evanhyd
+permissions:
+  MeowOfLegends.all:
+    children:
+      MeowOfLegends.debug: true
+commands:
+  debug:
+    description: Prints out relevant debug information
+    usage: /<command>
+    permission: MeowOfLegends.debug
+    permission-message: You do not have permission!
+
