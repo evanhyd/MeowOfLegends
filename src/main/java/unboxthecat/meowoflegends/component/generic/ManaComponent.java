@@ -89,4 +89,14 @@ public class ManaComponent implements MOLComponent {
     public void consumeMana(double manaCost) {
         currentMana = Math.max(0.0, currentMana - manaCost);
     }
+
+    //Overriding toString() method of String Class
+    @Override
+    public String toString(){
+        return "currMana: " + this.currentMana + "\n" +
+                "maxMana: " + this.maxMana + "\n" +
+                "manaRegenRate: " + this.manaRegenerationRate + "\n" +
+                "manaBar(Title): " + this.manaBar.getTitle() + "\n" +
+                "manaRegenTask(TaskId): " + this.manaRegenerationTask.getTaskId() + "\n" ;
+    }
 }

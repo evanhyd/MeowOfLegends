@@ -45,4 +45,12 @@ public class CooldownComponent implements MOLComponent {
     public void restartTimer() {
         lastActivateTime = System.currentTimeMillis();
     }
+
+    //Overriding toString() method of String Class
+    @Override
+    public String toString(){
+        return "cooldown: " + this.cooldown + "\n" +
+                "lastActivateTime: " + this.lastActivateTime + "\n";
+    }
+
 }

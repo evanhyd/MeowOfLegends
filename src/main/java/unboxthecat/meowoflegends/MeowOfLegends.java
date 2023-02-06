@@ -1,7 +1,9 @@
 package unboxthecat.meowoflegends;
 
+import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.plugin.java.JavaPlugin;
+import unboxthecat.meowoflegends.command.CommandDebug;
 import unboxthecat.meowoflegends.component.BakuretsuMahou;
 import unboxthecat.meowoflegends.component.generic.AbilityComponent;
 import unboxthecat.meowoflegends.component.generic.CooldownComponent;
@@ -28,6 +30,9 @@ public final class MeowOfLegends extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new MOLPlayerLoginHandler(), this);
         getServer().getPluginManager().registerEvents(new LoginMessageHandler(), this);
         getServer().getPluginManager().registerEvents(new PlayerDeathMessageHandler(), this);
+
+        PluginCommand debugCommand = this.getCommand("debug");
+        if(debugCommand != null) debugCommand.setExecutor(new CommandDebug());
     }
 
     @Override
