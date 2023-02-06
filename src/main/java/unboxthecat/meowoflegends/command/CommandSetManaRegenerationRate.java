@@ -17,12 +17,8 @@ import static unboxthecat.meowoflegends.GameState.getPlayers;
 public class CommandSetManaRegenerationRate implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args){
 
-        if(sender instanceof Player){
-            Player player = (Player) sender;
-            UUID playerUUID = player.getUniqueId();
-
-            Map<UUID, MOLEntity> UUID_MOLEntity = getPlayers();
-            MOLEntity playerMOLEntity = UUID_MOLEntity.get(playerUUID);
+        if(sender instanceof Player player){
+            MOLEntity playerMOLEntity = getPlayers().get(player.getUniqueId());
 
             //no mana component
             ManaComponent manaComponent = (ManaComponent) playerMOLEntity.getComponent(ManaComponent.class);

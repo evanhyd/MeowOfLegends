@@ -1,6 +1,7 @@
 package unboxthecat.meowoflegends.entity.generic;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.NotNull;
@@ -156,7 +157,21 @@ public class MOLEntity implements ConfigurationSerializable {
     }
 
     @Override
-    public String toString(){
-        return "";
+    public String toString() {
+        String entityInfo = "Name    : " + entity.getName() + "\n" +
+                            "UUID    : " + entity.getUniqueId() + "\n" +
+                            "Vehicle : " + (entity.getVehicle() == null ? "no vehicle" : entity.getVehicle().toString()) + "\n" +
+                            "FireTicks: " + entity.getFireTicks()+ "\n" +
+                            "FreezeTicks: " + entity.getFreezeTicks() + "\n";
+
+        StringBuilder componentsInfo = new StringBuilder();
+        components.forEach((name, component) -> componentsInfo.append(name).append(" :\n").append(component).append("\n"));
+
+        StringBuilder tagsInfo = new StringBuilder();
+        tags.forEach((name, component) -> tagsInfo.append(name).append(" :\n").append(component).append("\n"));
+
+        return  ChatColor.BLUE + "EntityInfo:\n" + ChatColor.LIGHT_PURPLE + entityInfo + "\n" +
+                ChatColor.BLUE +  "ComponentsInfo:\n" + ChatColor.LIGHT_PURPLE + componentsInfo + "\n" +
+                ChatColor.BLUE + "TagsInfo:\n" + ChatColor.LIGHT_PURPLE + tagsInfo + "\n";
     }
 }

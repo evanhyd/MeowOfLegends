@@ -19,12 +19,8 @@ public class CommandSetCurrentMana implements CommandExecutor{
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args){
 
-        if(sender instanceof Player){
-            Player player = (Player) sender;
-            UUID playerUUID = player.getUniqueId();
-
-            Map<UUID, MOLEntity> UUID_MOLEntity = getPlayers();
-            MOLEntity playerMOLEntity = UUID_MOLEntity.get(playerUUID);
+        if(sender instanceof Player player){
+            MOLEntity playerMOLEntity = getPlayers().get(player.getUniqueId());
 
             //no mana component
             ManaComponent manaComponent = (ManaComponent) playerMOLEntity.getComponent(ManaComponent.class);
@@ -47,14 +43,14 @@ public class CommandSetCurrentMana implements CommandExecutor{
 
             //invalid values for current mana
             double newCurrentMana = Double.parseDouble(args[0]);
-            if(newCurrentMana < 0 || newCurrentMana > manaComponent.getMaxMana()){
+            if(newCurrentMana < 0.0 || newCurrentMana > manaComponent.getMaxMana()){
                 player.sendMessage(ChatColor.YELLOW + "invalid values for current mana");
                 return true;
             }
 
             //set current mana to new value
             manaComponent.setCurrentMana(newCurrentMana);
-            player.sendMessage(ChatColor.GREEN + "current mana has been changed to " + newCurrentMana);
+            player.sendMessage(ChatColor.GREEN + "updated current mana to " + newCurrentMana);
             return true;
         }
 
