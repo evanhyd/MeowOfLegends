@@ -46,11 +46,10 @@ public class CooldownComponent implements MOLComponent {
         lastActivateTime = System.currentTimeMillis();
     }
 
-    //Overriding toString() method of String Class
     @Override
     public String toString(){
         return "cooldown: " + this.cooldown + "\n" +
-                "lastActivateTime: " + this.lastActivateTime + "\n";
+                "lastActivateTime: " + this.lastActivateTime + "\n"
+                + "remainingCooldown: " + this.getCooldownInMilli() + " ms\n";
     }
-
 }

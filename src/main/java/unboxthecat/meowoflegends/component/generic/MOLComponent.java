@@ -16,7 +16,4 @@ public interface MOLComponent extends ConfigurationSerializable {
      * @param owner the MOLEntity.
      */
     void onRemove(MOLEntity owner);
-
-
-
 }

@@ -16,27 +16,31 @@ import unboxthecat.meowoflegends.component.generic.AbilityComponent;
 import unboxthecat.meowoflegends.component.generic.CooldownComponent;
 import unboxthecat.meowoflegends.component.generic.ManaComponent;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
+import unboxthecat.meowoflegends.helper.Geometric;
 
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 public class BakuretsuMahou implements AbilityComponent, Listener {
     //Tunable values
-    public static final double COOLDOWN_IN_SECONDS = 1.0;
+    public static final double COOLDOWN_IN_SECONDS = 3.0;
     public static final double MANA_PERCENT_COST = 0.05;
-    public static final int EXPLOSION_RANGE = 100;
-    public static final int EXPLOSION_MAGMA_RADIUS = 10;
-    public static final int EXPLOSION_MAGMA_HEIGHT = 2;
-    public static final int EXPLOSION_LAVA_RADIUS = 7;
-    public static final int EXPLOSION_LAVA_HEIGHT = 10;
+    public static final int EXPLOSION_TARGET_REACH = 100;
+    public static final int EXPLOSION_MAGMA_RADIUS = 20;
+    public static final int EXPLOSION_MAGMA_DEPTH = 1;
+    public static final int EXPLOSION_MAGMA_HEIGHT = 1;
+    public static final double EXPLOSION_MAGMA_CHANNELING_IN_SECONDS = 3.0;
+    public static final int EXPLOSION_LAVA_RADIUS = 10;
+    public static final int EXPLOSION_LAVA_HEIGHT = 100;
+
+    public static final double EXPLOSION_LAVA_CHANNELING_IN_SECONDS = 1.0;
     public static final double EXPLOSION_LAVA_DURATION_IN_SECONDS = 10.0;
     public static final int EXPLOSION_DAMAGE_RADIUS = 10;
     public static final int EXPLOSION_DAMAGE_HEIGHT = 10;
-    public static final double EXPLOSION_DAMAGE = 10.0;
+    public static final double EXPLOSION_DAMAGE = 20.0;
 
 
     private MOLEntity owner;
-    private CooldownComponent cooldownComponent;
+    private final CooldownComponent cooldownComponent;
     private double manaPercentCost;
 
     public BakuretsuMahou(double cooldownInSeconds, double manaPercentCost) {
@@ -75,12 +79,12 @@ public class BakuretsuMahou implements AbilityComponent, Listener {
 
         if (isOwner(event.getPlayer()) &&
             isUsingBlazeRod(event.getAction()) &&
-            isTargetingBlock() &&
+            isLookingAtSolidBlock() &&
             isManaSufficient() &&
             isCooldownReady()) {
 
-            explode();
             applyCost();
+            explode();
         }
     }
 
@@ -95,8 +99,9 @@ public class BakuretsuMahou implements AbilityComponent, Listener {
                (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK);
     }
 
-    private boolean isTargetingBlock() {
-        return ((Player)owner.getEntity()).getTargetBlockExact(100, FluidCollisionMode.NEVER) != null;
+    private boolean isLookingAtSolidBlock() {
+        Set<Material> ignoredBlockType = Set.of(Material.AIR, Material.CAVE_AIR, Material.VOID_AIR, Material.WATER, Material.LAVA);
+        return ((Player)owner.getEntity()).getTargetBlock(ignoredBlockType, EXPLOSION_TARGET_REACH).getType().isSolid();
     }
 
     private boolean isManaSufficient() {
@@ -109,77 +114,71 @@ public class BakuretsuMahou implements AbilityComponent, Listener {
     }
 
     private void explode() {
+        Set<Material> ignoredBlockType = Set.of(Material.AIR, Material.CAVE_AIR, Material.VOID_AIR, Material.WATER, Material.LAVA);
+        Block explosionBlock = ((Player)owner.getEntity()).getTargetBlock(ignoredBlockType, EXPLOSION_TARGET_REACH);
 
-        Block block = ((Player)owner.getEntity()).getTargetBlockExact(EXPLOSION_RANGE, FluidCollisionMode.NEVER);
-        if (block == null) {
-            return;
-        }
+        World world = explosionBlock.getWorld();
+        Location explosionOrigin = explosionBlock.getLocation();
 
-        World world = block.getWorld();
-        Location location = block.getLocation();
+        //prefetch the blocks first, so the animation looks less laggy
+        ArrayList<Block> magmaBlocks = Geometric.getBlockInCylinder(explosionOrigin, EXPLOSION_MAGMA_RADIUS, EXPLOSION_MAGMA_DEPTH, EXPLOSION_MAGMA_HEIGHT,
+                b -> b.getType().isSolid() && b.getType().getHardness() >= 0.0);
+        Collections.shuffle(magmaBlocks);
+
+        ArrayList<Block> lavaBlocks = Geometric.getBlockInCylinder(explosionOrigin, EXPLOSION_LAVA_RADIUS, 1, EXPLOSION_LAVA_HEIGHT, b -> b.getType().getHardness() >= 0.0);
+        lavaBlocks.sort((b1, b2) -> {
+            double roundAwayFromZero = b1.getLocation().distanceSquared(explosionOrigin) - b2.getLocation().distanceSquared(explosionOrigin);
+            return (int) ((roundAwayFromZero > 0.0) ? Math.ceil(roundAwayFromZero) : Math.floor(roundAwayFromZero));
+        });
+
+
+        //playing channeling sound
+        world.playSound(owner.getEntity().getLocation(), Sound.BLOCK_PORTAL_AMBIENT, 1.0f, 0.5f);
+        world.playSound(explosionOrigin, Sound.BLOCK_LAVA_AMBIENT, 1.0f, 0.5f);
 
         //create magma block base
-        double magmaCreationDelayInSeconds = 0.0;
-        for (int radius = 0; radius < EXPLOSION_MAGMA_RADIUS; ++radius) {
-            for (int x = 0; x < radius; ++x) {
-                int z = (int) Math.sqrt(radius * radius - x * x);
-                for (int y = 0; y < EXPLOSION_MAGMA_HEIGHT; ++y) {
+        double magmaChannelingInSeconds = EXPLOSION_MAGMA_CHANNELING_IN_SECONDS / magmaBlocks.size();
+        final int magmaCooldownInTicks = GameState.secondToTick(EXPLOSION_MAGMA_CHANNELING_IN_SECONDS + EXPLOSION_LAVA_CHANNELING_IN_SECONDS + EXPLOSION_LAVA_DURATION_IN_SECONDS);
+        double magmaDelayInSeconds = 0.0;
+        for (Block baseBlock : magmaBlocks) {
 
-                    int finalX = x;
-                    int finalY = y;
+            //turn into magma block, then cooldown to stone
+            Bukkit.getScheduler().runTaskLater(GameState.getPlugin(), () -> {
+                baseBlock.setType(Material.MAGMA_BLOCK);
+                Bukkit.getScheduler().runTaskLater(GameState.getPlugin(), () -> baseBlock.setType(Material.STONE), magmaCooldownInTicks);
+            }, GameState.secondToTick(magmaDelayInSeconds));
 
-                    location.add(finalX, finalY, -z);
+            magmaDelayInSeconds += magmaChannelingInSeconds;
+        }
 
-                    Bukkit.getScheduler().runTaskLater(GameState.getPlugin(), () -> {
-                        world.setType((int) location.getX() +  finalX, (int) location.getY() + finalY, (int) location.getZ() - z, Material.MAGMA_BLOCK);
-                        world.setType((int) location.getX() + finalX, (int) location.getY() - finalY, (int) location.getZ() - z, Material.MAGMA_BLOCK);
-                        world.setType((int) location.getX() - finalX, (int) location.getY() + finalY, (int) location.getZ() - z, Material.MAGMA_BLOCK);
-                        world.setType((int) location.getX() - finalX, (int) location.getY() - finalY, (int) location.getZ() - z, Material.MAGMA_BLOCK);
-                    }, GameState.secondToTick(magmaCreationDelayInSeconds));
+        //create the closer lava blocks first
+        Bukkit.getScheduler().runTaskLater(GameState.getPlugin(), () -> {
 
-                    Bukkit.getScheduler().runTaskLater(GameState.getPlugin(), () -> {
-                        world.setType((int) location.getX() +  finalX, (int) location.getY() + finalY, (int) location.getZ() - z, Material.STONE);
-                        world.setType((int) location.getX() + finalX, (int) location.getY() - finalY, (int) location.getZ() - z, Material.STONE);
-                        world.setType((int) location.getX() - finalX, (int) location.getY() + finalY, (int) location.getZ() - z, Material.STONE);
-                        world.setType((int) location.getX() - finalX, (int) location.getY() - finalY, (int) location.getZ() - z, Material.STONE);
-                    }, GameState.secondToTick(EXPLOSION_LAVA_DURATION_IN_SECONDS));
+            //apply BakuretsuMahou damage to nearby living entities
+            var entities = world.getNearbyEntities(explosionOrigin, EXPLOSION_DAMAGE_RADIUS, EXPLOSION_DAMAGE_RADIUS, EXPLOSION_DAMAGE_HEIGHT);
+            for (Entity entity : entities) {
+                if (entity instanceof LivingEntity) {
+                    ((LivingEntity) entity).damage(EXPLOSION_DAMAGE, owner.getEntity());
                 }
             }
 
-            magmaCreationDelayInSeconds += 0.05;
-        }
 
-        for (int radius = 0; radius < EXPLOSION_LAVA_RADIUS; ++radius) {
-            for (int x = 0; x < radius; ++x) {
-                int z = (int) Math.sqrt(radius * radius - x * x);
-                for (int y = -EXPLOSION_MAGMA_HEIGHT; y < EXPLOSION_LAVA_HEIGHT; ++y) {
+            double lavaChannelingInSeconds = EXPLOSION_LAVA_CHANNELING_IN_SECONDS / lavaBlocks.size();
+            double lavaDelayInSeconds = 0.0;
+            int lavaDurationInTicks = GameState.secondToTick(EXPLOSION_LAVA_DURATION_IN_SECONDS);
+            for (Block lavaBar : lavaBlocks) {
 
-                    int finalX = x;
-                    int finalY = y;
+                //create lava first, then turn back into air
+                Bukkit.getScheduler().runTaskLater(GameState.getPlugin(), () -> {
+                    lavaBar.setType(Material.LAVA);
+                    world.playSound(lavaBar.getLocation(), Sound.ENTITY_LIGHTNING_BOLT_IMPACT, 1.0f, 0.1f);
 
-                    world.setType((int) location.getX() +  finalX, (int) location.getY() + finalY, (int) location.getZ() + z, Material.LAVA);
-                    world.setType((int) location.getX() + finalX, (int) location.getY() - finalY, (int) location.getZ() + z, Material.LAVA);
-                    world.setType((int) location.getX() - finalX, (int) location.getY() + finalY, (int) location.getZ() + z, Material.LAVA);
-                    world.setType((int) location.getX() - finalX, (int) location.getY() - finalY, (int) location.getZ() + z, Material.LAVA);
+                    Bukkit.getScheduler().runTaskLater(GameState.getPlugin(), () -> lavaBar.setType(Material.AIR), lavaDurationInTicks);
+                }, GameState.secondToTick(lavaDelayInSeconds));
 
-                    Bukkit.getScheduler().runTaskLater(GameState.getPlugin(), () -> {
-                        world.setType((int) location.getX() +  finalX, (int) location.getY() + finalY, (int) location.getZ() + z, Material.AIR);
-                        world.setType((int) location.getX() + finalX, (int) location.getY() - finalY, (int) location.getZ() + z, Material.AIR);
-                        world.setType((int) location.getX() - finalX, (int) location.getY() + finalY, (int) location.getZ() + z, Material.AIR);
-                        world.setType((int) location.getX() - finalX, (int) location.getY() - finalY, (int) location.getZ() + z, Material.AIR);
-                    }, GameState.secondToTick(EXPLOSION_LAVA_DURATION_IN_SECONDS));
-                }
+                lavaDelayInSeconds += lavaChannelingInSeconds;
             }
-        }
-
-        world.playSound(location, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 1.0f, 0.5f);
-
-        var entities = world.getNearbyEntities(location, EXPLOSION_DAMAGE_RADIUS, EXPLOSION_DAMAGE_RADIUS, EXPLOSION_DAMAGE_HEIGHT);
-        for (Entity entity : entities) {
-            if (entity instanceof LivingEntity) {
-                ((LivingEntity) entity).damage(EXPLOSION_DAMAGE, owner.getEntity());
-            }
-        }
+        }, GameState.secondToTick(EXPLOSION_MAGMA_CHANNELING_IN_SECONDS));
     }
 
     private void applyCost() {

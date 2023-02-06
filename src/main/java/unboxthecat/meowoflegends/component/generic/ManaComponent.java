@@ -17,7 +17,7 @@ public class ManaComponent implements MOLComponent {
     private class ManaRegenerationTask extends BukkitRunnable {
         @Override
         public void run() {
-            currentMana = Math.min(maxMana, currentMana + manaRegenerationRate);
+            currentMana = Math.min(maxMana, Math.max(0.0, currentMana + manaRegenerationRate));
             manaBar.setProgress(currentMana / maxMana);
             manaBar.setTitle(getManaTitle());
         }
@@ -87,10 +87,9 @@ public class ManaComponent implements MOLComponent {
     }
 
     public void consumeMana(double manaCost) {
-        currentMana = Math.max(0.0, currentMana - manaCost);
+        currentMana = Math.min(maxMana, Math.max(0.0, currentMana - manaCost));
     }
 
-    //Overriding toString() method of String Class
     @Override
     public String toString(){
         return "currMana: " + this.currentMana + "\n" +
