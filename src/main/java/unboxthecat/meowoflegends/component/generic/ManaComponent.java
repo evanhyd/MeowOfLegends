@@ -92,6 +92,8 @@ public class ManaComponent implements MOLComponent {
 
     public void setCurrentMana(double newCurrentMana){ this.currentMana = newCurrentMana; }
 
+    public void setMaxMana(double newMaxMana) { this.maxMana = newMaxMana; }
+
     //Overriding toString() method of String Class
     @Override
     public String toString(){

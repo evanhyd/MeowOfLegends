@@ -21,4 +21,9 @@ commands:
     usage: /<command>
     permission: MeowOfLegends.mana
     permission-message: You do not have permission!
+  setmaxmana:
+    description: Sets max mana value
+    usage: /<command>
+    permission: MeowOfLegends.mana
+    permission-message: You do not have permission!
 
