@@ -9,10 +9,16 @@ permissions:
   MeowOfLegends.all:
     children:
       MeowOfLegends.debug: true
+      MeowOfLegends.mana: true
 commands:
   debug:
     description: Prints out relevant debug information
     usage: /<command>
     permission: MeowOfLegends.debug
+    permission-message: You do not have permission!
+  setcurrentmana:
+    description: Sets current mana value
+    usage: /<command>
+    permission: MeowOfLegends.mana
     permission-message: You do not have permission!
 

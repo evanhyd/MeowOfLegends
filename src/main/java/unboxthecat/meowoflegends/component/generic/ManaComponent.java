@@ -90,6 +90,8 @@ public class ManaComponent implements MOLComponent {
         currentMana = Math.max(0.0, currentMana - manaCost);
     }
 
+    public void setCurrentMana(double newCurrentMana){ this.currentMana = newCurrentMana; }
+
     //Overriding toString() method of String Class
     @Override
     public String toString(){
