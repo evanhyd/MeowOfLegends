@@ -86,6 +86,12 @@ public class ManaComponent implements MOLComponent {
         return manaRegenerationRate;
     }
 
+    public void setCurrentMana(double newCurrentMana){ this.currentMana = newCurrentMana; }
+
+    public void setMaxMana(double newMaxMana) { this.maxMana = newMaxMana; }
+
+    public void setManaRegenerationRate(double newManaRegenerationRate) { this.manaRegenerationRate = newManaRegenerationRate; }
+
     public void consumeMana(double manaCost) {
         currentMana = Math.min(maxMana, Math.max(0.0, currentMana - manaCost));
     }

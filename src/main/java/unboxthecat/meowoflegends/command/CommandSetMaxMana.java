@@ -1,10 +1,10 @@
 package unboxthecat.meowoflegends.command;
 
 import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import unboxthecat.meowoflegends.component.generic.ManaComponent;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
@@ -14,7 +14,7 @@ import java.util.UUID;
 
 import static unboxthecat.meowoflegends.GameState.getPlayers;
 
-public class CommandSetCurrentMana implements CommandExecutor{
+public class CommandSetMaxMana implements CommandExecutor{
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args){
@@ -39,22 +39,22 @@ public class CommandSetCurrentMana implements CommandExecutor{
                 return true;
             }
 
-            //invalid values for current mana
+            //invalid values for max mana
             if(!args[0].matches("[-+]?[0-9]*\\.?[0-9]+")){
                 player.sendMessage(ChatColor.YELLOW + "invalid values for current mana");
                 return true;
             }
 
-            //invalid values for current mana
-            double newCurrentMana = Double.parseDouble(args[0]);
-            if(newCurrentMana < 0 || newCurrentMana > manaComponent.getMaxMana()){
+            //invalid values for max mana
+            double newMaxMana = Double.parseDouble(args[0]);
+            if(newMaxMana < 0.1 ){
                 player.sendMessage(ChatColor.YELLOW + "invalid values for current mana");
                 return true;
             }
 
-            //set current mana to new value
-            manaComponent.setCurrentMana(newCurrentMana);
-            player.sendMessage(ChatColor.GREEN + "current mana has been changed to " + newCurrentMana);
+            //set max mana to new value
+            manaComponent.setMaxMana(newMaxMana);
+            player.sendMessage(ChatColor.GREEN + "current mana has been changed to " + newMaxMana);
             return true;
         }
 
@@ -62,3 +62,4 @@ public class CommandSetCurrentMana implements CommandExecutor{
         return false;
     }
 }
+
