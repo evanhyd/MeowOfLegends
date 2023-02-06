@@ -94,6 +94,8 @@ public class ManaComponent implements MOLComponent {
 
     public void setMaxMana(double newMaxMana) { this.maxMana = newMaxMana; }
 
+    public void setManaRegenerationRate(double newManaRegenerationRate) { this.manaRegenerationRate = newManaRegenerationRate; }
+
     //Overriding toString() method of String Class
     @Override
     public String toString(){

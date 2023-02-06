@@ -5,6 +5,7 @@ import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.plugin.java.JavaPlugin;
 import unboxthecat.meowoflegends.command.CommandDebug;
 import unboxthecat.meowoflegends.command.CommandSetCurrentMana;
+import unboxthecat.meowoflegends.command.CommandSetManaRegenerationRate;
 import unboxthecat.meowoflegends.command.CommandSetMaxMana;
 import unboxthecat.meowoflegends.component.BakuretsuMahou;
 import unboxthecat.meowoflegends.component.generic.AbilityComponent;
@@ -39,6 +40,8 @@ public final class MeowOfLegends extends JavaPlugin {
         if(setCurrentManaCommand != null) setCurrentManaCommand.setExecutor(new CommandSetCurrentMana());
         PluginCommand setMaxManaCommand = this.getCommand("setmaxmana");
         if(setMaxManaCommand != null) setMaxManaCommand.setExecutor(new CommandSetMaxMana());
+        PluginCommand setManaRegenerationRateCommand = this.getCommand("setmanaregenerationrate");
+        if(setManaRegenerationRateCommand != null) setManaRegenerationRateCommand.setExecutor(new CommandSetManaRegenerationRate());
     }
 
     @Override

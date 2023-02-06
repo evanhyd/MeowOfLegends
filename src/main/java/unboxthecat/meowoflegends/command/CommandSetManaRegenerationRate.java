@@ -14,9 +14,7 @@ import java.util.UUID;
 
 import static unboxthecat.meowoflegends.GameState.getPlayers;
 
-public class CommandSetMaxMana implements CommandExecutor{
-
-    @Override
+public class CommandSetManaRegenerationRate implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args){
 
         if(sender instanceof Player){
@@ -39,22 +37,22 @@ public class CommandSetMaxMana implements CommandExecutor{
                 return true;
             }
 
-            //invalid values for max mana
+            //invalid values for mana regeneration rate
             if(!args[0].matches("[-+]?[0-9]*\\.?[0-9]+")){
                 player.sendMessage(ChatColor.YELLOW + "invalid values for current mana");
                 return true;
             }
 
-            //invalid values for max mana
-            double newMaxMana = Double.parseDouble(args[0]);
-            if(newMaxMana < 0.1 ){
+            //invalid values for mana regeneration rate
+            double newManaRegenerationRate = Double.parseDouble(args[0]);
+            if(newManaRegenerationRate < 0 ){
                 player.sendMessage(ChatColor.YELLOW + "invalid values for current mana");
                 return true;
             }
 
-            //set max mana to new value
-            manaComponent.setMaxMana(newMaxMana);
-            player.sendMessage(ChatColor.GREEN + "current mana has been changed to " + newMaxMana);
+            //set mana regeneration rate to new value
+            manaComponent.setManaRegenerationRate(newManaRegenerationRate);
+            player.sendMessage(ChatColor.GREEN + "current mana has been changed to " + newManaRegenerationRate);
             return true;
         }
 
@@ -62,4 +60,3 @@ public class CommandSetMaxMana implements CommandExecutor{
         return false;
     }
 }
-
