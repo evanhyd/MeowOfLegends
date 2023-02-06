@@ -16,8 +16,8 @@ public class CooldownComponent implements MOLComponent {
     }
 
     public CooldownComponent(Map<String, Object> data) {
-        cooldown = ((Integer)data.get("cooldownInMillis")).longValue();
-        lastActivateTime = ((Integer) data.get("lastActivateTime")).longValue();
+        cooldown = Long.parseLong(data.get("cooldownInMillis").toString());
+        lastActivateTime = Long.parseLong(data.get("lastActivateTime").toString());
     }
 
     @Override

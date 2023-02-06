@@ -24,7 +24,7 @@ public class MOLPlayerLoginHandler implements Listener {
             } else {
                 molEntity = new MOLEntity(event.getPlayer());
                 molEntity.attachComponent(new ManaComponent(0.0, 50.0, 1.0));
-                molEntity.attachComponent(new BakuretsuMahou(BakuretsuMahou.COOLDOWN_SECONDS, BakuretsuMahou.MANA_PERCENT_COST, BakuretsuMahou.EXPLOSION_YIELD));
+                molEntity.attachComponent(new BakuretsuMahou(BakuretsuMahou.COOLDOWN_IN_SECONDS, BakuretsuMahou.MANA_PERCENT_COST));
             }
 
             GameState.getPlayers().put(event.getPlayer().getUniqueId(), molEntity);
