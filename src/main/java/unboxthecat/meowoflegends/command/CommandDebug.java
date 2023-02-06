@@ -6,6 +6,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 import unboxthecat.meowoflegends.component.generic.MOLComponent;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 import unboxthecat.meowoflegends.tag.MOLTag;
@@ -25,7 +26,7 @@ import static unboxthecat.meowoflegends.GameState.getPlayers;
  */
 public class CommandDebug implements CommandExecutor {
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args){
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args){
         //todo: change sender to only operator/admin to prevent normal player from using this command
         //player is sender
         if(sender instanceof Player){
@@ -48,12 +49,13 @@ public class CommandDebug implements CommandExecutor {
                     "FireTicks: " + playerMOLEntityEntity.getFireTicks()+ "\n" +
                     "FreezeTicks: " + playerMOLEntityEntity.getFreezeTicks() + "\n";
 
-
+            //formatting components info
             StringBuilder componentsInfo = new StringBuilder();
             for (var entry : playerMOLEntityComponents.entrySet()){
                 componentsInfo.append(entry.getKey()).append(" :\n").append(entry.getValue().toString()).append("\n");
             }
 
+            //formatting tags info
             StringBuilder tagsInfo = new StringBuilder();
             for(var entry : playerMOLEntityTags.entrySet()){
                 tagsInfo.append(entry.getKey()).append(" :\n").append(entry.getValue().toString()).append("\n");
