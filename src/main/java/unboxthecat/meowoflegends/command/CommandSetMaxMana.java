@@ -14,6 +14,10 @@ import java.util.UUID;
 
 import static unboxthecat.meowoflegends.GameState.getPlayers;
 
+/**
+ * "/setmaxmana %d" command
+ * sets maxMana value
+ */
 public class CommandSetMaxMana implements CommandExecutor{
 
     @Override

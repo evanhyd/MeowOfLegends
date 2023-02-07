@@ -14,6 +14,11 @@ import java.util.UUID;
 
 import static unboxthecat.meowoflegends.GameState.getPlayers;
 
+
+/**
+ * "/setcurrentmana %d" command
+ * sets currentMana value
+ */
 public class CommandSetCurrentMana implements CommandExecutor{
 
     @Override

@@ -20,9 +20,24 @@ import static unboxthecat.meowoflegends.GameState.getPlayers;
  * "/debug" command
  * prints out relevant debug information
  * ex. output:
- * ... ... ...
- * player "name" info:
  *
+ * Debug Info:
+ * EntityInfo:
+ * Name   : gary
+ * UUID   : 82e8f9ad-a8f28easd-2fads
+ * Vehicle : no vehicle
+ * FireTicks: -20
+ * FreezeTicks: 0
+ * ComponentsInfo:
+ * key : value
+ *   .
+ *   .
+ *   .
+ * TagsInfo:
+ * key : value
+ *   .
+ *   .
+ *   .
  */
 public class CommandDebug implements CommandExecutor {
     @Override

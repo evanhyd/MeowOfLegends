@@ -14,6 +14,10 @@ import java.util.UUID;
 
 import static unboxthecat.meowoflegends.GameState.getPlayers;
 
+/**
+ * "/setmanaregenerationrate %d" command
+ * sets manaRegenerationRate value
+ */
 public class CommandSetManaRegenerationRate implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args){
 
