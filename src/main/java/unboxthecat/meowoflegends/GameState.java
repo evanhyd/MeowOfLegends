@@ -15,7 +15,7 @@ public class GameState implements Listener {
     private GameState() {};
 
     public static int secondToTick(double seconds) {
-        return Math.max(1, (int)(Math.round(seconds * (double)SERVER_TICK_RATE)));
+        return (int)(Math.round(seconds * (double)SERVER_TICK_RATE));
     }
 
     public static double tickToSecond(int tick) {
