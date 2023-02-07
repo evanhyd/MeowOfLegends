@@ -14,10 +14,7 @@ import java.util.UUID;
 
 import static unboxthecat.meowoflegends.GameState.getPlayers;
 
-/**
- * "/setmanaregenerationrate %d" command
- * sets manaRegenerationRate value
- */
+
 public class CommandSetManaRegenerationRate implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args){
 
@@ -33,26 +30,26 @@ public class CommandSetManaRegenerationRate implements CommandExecutor {
 
             //wrong number of argument
             if(args.length != 1){
-                player.sendMessage(ChatColor.YELLOW + "invalid arguments for current mana");
+                player.sendMessage(ChatColor.YELLOW + "invalid arguments for mana regeneration rate");
                 return true;
             }
 
             //invalid values for mana regeneration rate
             if(!args[0].matches("[-+]?[0-9]*\\.?[0-9]+")){
-                player.sendMessage(ChatColor.YELLOW + "invalid values for current mana");
+                player.sendMessage(ChatColor.YELLOW + "invalid values for mana regeneration rate");
                 return true;
             }
 
             //invalid values for mana regeneration rate
             double newManaRegenerationRate = Double.parseDouble(args[0]);
             if(newManaRegenerationRate < 0 ){
-                player.sendMessage(ChatColor.YELLOW + "invalid values for current mana");
+                player.sendMessage(ChatColor.YELLOW + "invalid values for mana regeneration rate");
                 return true;
             }
 
             //set mana regeneration rate to new value
             manaComponent.setManaRegenerationRate(newManaRegenerationRate);
-            player.sendMessage(ChatColor.GREEN + "current mana has been changed to " + newManaRegenerationRate);
+            player.sendMessage(ChatColor.GREEN + "mana regeneration rate has been changed to " + newManaRegenerationRate);
             return true;
         }
 
