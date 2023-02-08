@@ -9,9 +9,6 @@ import org.jetbrains.annotations.NotNull;
 import unboxthecat.meowoflegends.component.generic.ManaComponent;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 
-import java.util.Map;
-import java.util.UUID;
-
 import static unboxthecat.meowoflegends.GameState.getPlayers;
 
 
@@ -22,7 +19,7 @@ public class CommandSetManaRegenerationRate implements CommandExecutor {
             MOLEntity playerMOLEntity = getPlayers().get(player.getUniqueId());
 
             //no mana component
-            ManaComponent manaComponent = (ManaComponent) playerMOLEntity.getComponent(ManaComponent.class);
+            ManaComponent manaComponent = playerMOLEntity.getComponent(ManaComponent.class);
             if(manaComponent == null){
                 player.sendMessage(ChatColor.YELLOW +  "current entity " + player.getName() + " does not have mana component");
                 return true;

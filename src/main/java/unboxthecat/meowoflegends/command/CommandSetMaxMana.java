@@ -24,7 +24,7 @@ public class CommandSetMaxMana implements CommandExecutor{
             MOLEntity playerMOLEntity = getPlayers().get(player.getUniqueId());
 
             //no mana component
-            ManaComponent manaComponent = (ManaComponent) playerMOLEntity.getComponent(ManaComponent.class);
+            ManaComponent manaComponent = playerMOLEntity.getComponent(ManaComponent.class);
             if(manaComponent == null){
                 player.sendMessage(ChatColor.YELLOW +  "current entity " + player.getName() + " does not have mana component");
                 return true;

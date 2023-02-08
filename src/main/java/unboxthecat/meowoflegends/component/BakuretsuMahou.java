@@ -23,21 +23,19 @@ import java.util.*;
 
 public class BakuretsuMahou implements AbilityComponent, Listener {
     //Tunable values
+    public static final int EXPLOSION_TARGET_REACH = 200;
     public static final double COOLDOWN_IN_SECONDS = 3.0;
     public static final double MANA_PERCENT_COST = 0.05;
-    public static final int EXPLOSION_TARGET_REACH = 100;
 
-    public static final int EXPLOSION_MAGMA_RADIUS = 20;
     public static final int EXPLOSION_MAGMA_DEPTH = 1;
     public static final int EXPLOSION_MAGMA_HEIGHT = 1;
-    public static final double EXPLOSION_MAGMA_CHANNELING_IN_SECONDS = 3.0;
+    public static final double EXPLOSION_CHANNELING_IN_SECONDS = 5.0;
+    public static final double EXPLOSION_MIN_RADIUS = 20.0;
+    public static final double EXPLOSION_MAX_RADIUS = 30.0;
+    public static final double EXPLOSION_HEIGHT = 50.0;
+    public static final int EXPLOSION_COUNT = 6;
+    public static final double EXPLOSION_DAMAGE = 200.0;
 
-    public static final int EXPLOSION_RING_COUNT = 6;
-    public static final double EXPLOSION_RING_MIN_RADIUS = 10.0;
-    public static final double EXPLOSION_RING_MAX_RADIUS = 15.0;
-    public static final double EXPLOSION_RING_HEIGHT = 50.0;
-    public static final double EXPLOSION_RING_CHANNELING_IN_SECONDS = 3.0;
-    public static final double EXPLOSION_DAMAGE = 20.0;
     public static final int EXPLOSION_FIRE_TICK = GameState.secondToTick(5.0);
 
 
@@ -107,7 +105,7 @@ public class BakuretsuMahou implements AbilityComponent, Listener {
     }
 
     private boolean isManaSufficient() {
-        ManaComponent manaComponent = (ManaComponent) owner.getComponent(ManaComponent.class);
+        ManaComponent manaComponent = owner.getComponent(ManaComponent.class);
         return manaComponent != null && manaComponent.getCurrentMana() >= manaComponent.getMaxMana() * manaPercentCost;
     }
 
@@ -123,17 +121,17 @@ public class BakuretsuMahou implements AbilityComponent, Listener {
         Location explosionOrigin = explosionBlock.getLocation();
 
         //prefetch the blocks first, so the animation looks less laggy
-        ArrayList<Block> magmaBlocks = Geometric.getBlockInCylinder(explosionOrigin, EXPLOSION_MAGMA_RADIUS, EXPLOSION_MAGMA_DEPTH, EXPLOSION_MAGMA_HEIGHT,
+        ArrayList<Block> magmaBlocks = Geometric.getBlockInCylinder(explosionOrigin, (int) EXPLOSION_MAX_RADIUS, EXPLOSION_MAGMA_DEPTH, EXPLOSION_MAGMA_HEIGHT,
                 b -> b.getType().isSolid() && b.getType().getHardness() >= 0.0);
         Collections.shuffle(magmaBlocks);
 
         //playing channeling sound
-        world.playSound(owner.getEntity().getLocation(), Sound.BLOCK_PORTAL_AMBIENT, 1.0f, 0.5f);
+        world.playSound(owner.getEntity().getLocation(), Sound.BLOCK_PORTAL_AMBIENT, 2.0f, 0.5f);
         world.playSound(explosionOrigin, Sound.BLOCK_LAVA_AMBIENT, 1.0f, 0.5f);
 
         //create magma block base
-        double magmaChannelingInSeconds = EXPLOSION_MAGMA_CHANNELING_IN_SECONDS / magmaBlocks.size();
-        final int magmaCooldownInTicks = GameState.secondToTick(EXPLOSION_MAGMA_CHANNELING_IN_SECONDS + EXPLOSION_RING_CHANNELING_IN_SECONDS);
+        double magmaChannelingInSeconds = EXPLOSION_CHANNELING_IN_SECONDS / magmaBlocks.size();
+        final int magmaCooldownInTicks = GameState.secondToTick(EXPLOSION_CHANNELING_IN_SECONDS);
         double magmaDelayInSeconds = 0.0;
         for (Block baseBlock : magmaBlocks) {
 
@@ -146,61 +144,74 @@ public class BakuretsuMahou implements AbilityComponent, Listener {
             magmaDelayInSeconds += magmaChannelingInSeconds;
         }
 
-        //create the closer lava blocks first
-        Bukkit.getScheduler().runTaskLater(GameState.getPlugin(), () -> {
+        //spawn ring
+        double ringChannelingInSeconds = EXPLOSION_CHANNELING_IN_SECONDS / EXPLOSION_COUNT;
+        for (int ring = 0; ring < EXPLOSION_COUNT; ++ring) {
+            double ringRadius = new Random().nextDouble(EXPLOSION_MIN_RADIUS, EXPLOSION_MAX_RADIUS);
+            double y = explosionOrigin.getY() + EXPLOSION_HEIGHT / EXPLOSION_COUNT * ring;
 
-            //spawn bar
-            var spawnLavaBar = new BukkitRunnable() {
-                int tick = 0;
+            int spawnDelayInTicks = GameState.secondToTick(ringChannelingInSeconds * ring);
+            BukkitRunnable spawningRing = new BukkitRunnable() {
+                int currentTick = 0;
+                final int endingTick = GameState.secondToTick(EXPLOSION_CHANNELING_IN_SECONDS) - spawnDelayInTicks;
                 @Override
                 public void run() {
-                    for(double y = 0.0; y <= EXPLOSION_RING_HEIGHT; ++y) {
-                        world.spawnParticle(Particle.LANDING_LAVA, explosionOrigin.getX(), explosionOrigin.getY() + y, explosionOrigin.getZ(), 100, 1.0, 0.5, 1.0);
-                    }
-                    if (++tick == EXPLOSION_RING_CHANNELING_IN_SECONDS) {
-                        this.cancel();
-                    }
-                }
-            };
-            spawnLavaBar.runTaskTimer(GameState.getPlugin(), 0, 1L);
-            
-
-            //spawn ring
-            double ringChannelingInSeconds = EXPLOSION_RING_CHANNELING_IN_SECONDS / EXPLOSION_RING_COUNT;
-            for (int ring = 0; ring < EXPLOSION_RING_COUNT; ++ring) {
-                double ringRadius = new Random().nextDouble(EXPLOSION_RING_MIN_RADIUS, EXPLOSION_RING_MAX_RADIUS);
-                double y = explosionOrigin.getY() + EXPLOSION_RING_HEIGHT / EXPLOSION_RING_COUNT * ring;
-
-                int spawnDelayInTicks = GameState.secondToTick(ringChannelingInSeconds * ring);
-                Bukkit.getScheduler().runTaskLater(GameState.getPlugin(), () -> {
-
-                    //apply BakuretsuMahou effect to nearby living entities
-                    var entities = world.getNearbyEntities(explosionOrigin, EXPLOSION_RING_MAX_RADIUS, EXPLOSION_RING_HEIGHT, EXPLOSION_RING_MAX_RADIUS);
-                    for (Entity entity : entities) {
-                        if (entity instanceof LivingEntity livingEntity) {
-                            livingEntity.damage(EXPLOSION_DAMAGE, owner.getEntity());
-                            livingEntity.setFireTicks(livingEntity.getFireTicks() + EXPLOSION_FIRE_TICK);
-                        }
-                    }
-
                     //spawn ring particle
                     for (double radian = 0.0; radian <= 2 * Math.PI; radian += 0.05) {
                         double x = ringRadius * Math.cos(radian) + explosionOrigin.getX();
                         double z = ringRadius * Math.sin(radian) + explosionOrigin.getZ();
-                        world.spawnParticle(Particle.LAVA, x, y, z, 10, 0.0, 0.0, 0.0);
+                        world.spawnParticle(Particle.DRIP_LAVA, x, y, z, 30, 1.0, 0.0, 1.0);
+                        world.spawnParticle(Particle.DRIPPING_OBSIDIAN_TEAR, x, y, z, 30, 1.0, 0.0, 1.0);
+                        world.spawnParticle(Particle.ENCHANTMENT_TABLE, x, y, z, 30, 1.0, 0.0, 1.0);
                     }
 
-                    //play explosion sound
-                    final Location center = new Location(world, explosionOrigin.getX(), y, explosionOrigin.getZ());
-                    world.playSound(center, Sound.ENTITY_LIGHTNING_BOLT_IMPACT, 1.0f, 0.1f);
+                    currentTick += 5;
+                    if (currentTick >= endingTick) {
+                        this.cancel();
+                    }
+                }
+            };
+            spawningRing.runTaskTimer(GameState.getPlugin(), spawnDelayInTicks, 5L);
+        }
 
-                }, spawnDelayInTicks);
+
+        Bukkit.getScheduler().runTaskLater(GameState.getPlugin(), () -> {
+
+            //play explosion sound
+            world.playSound(explosionOrigin, Sound.ENTITY_GENERIC_EXPLODE, 2.0f, 0.1f);
+
+            //apply BakuretsuMahou effect to nearby living entities
+            var entities = world.getNearbyEntities(explosionOrigin, EXPLOSION_MAX_RADIUS, EXPLOSION_HEIGHT, EXPLOSION_MAX_RADIUS);
+            for (Entity entity : entities) {
+                if (entity instanceof LivingEntity livingEntity) {
+                    livingEntity.damage(EXPLOSION_DAMAGE, owner.getEntity());
+                    livingEntity.setFireTicks(livingEntity.getFireTicks() + EXPLOSION_FIRE_TICK);
+                }
             }
-        }, GameState.secondToTick(EXPLOSION_MAGMA_CHANNELING_IN_SECONDS));
+
+            //draw explosion bar
+            BukkitRunnable spawningRing = new BukkitRunnable() {
+                int currentTick = 0;
+                final int endingTick = GameState.secondToTick(EXPLOSION_CHANNELING_IN_SECONDS);
+                @Override
+                public void run() {
+                    //spawn center bar
+                    for(double y = 0.0; y <= EXPLOSION_HEIGHT; ++y) {
+                        world.spawnParticle(Particle.LAVA, explosionOrigin.getX(), explosionOrigin.getY() + y, explosionOrigin.getZ(), 200, 5.0, 0.5, 5.0);
+                    }
+
+                    currentTick += 1;
+                    if (currentTick >= endingTick) {
+                        this.cancel();
+                    }
+                }
+            };
+            spawningRing.runTaskTimer(GameState.getPlugin(), 0L, 1L);
+        }, GameState.secondToTick(EXPLOSION_CHANNELING_IN_SECONDS));
     }
 
     private void applyCost() {
-        ManaComponent manaComponent = (ManaComponent) owner.getComponent(ManaComponent.class);
+        ManaComponent manaComponent = owner.getComponent(ManaComponent.class);
         manaComponent.consumeMana(manaComponent.getMaxMana() * manaPercentCost);
         cooldownComponent.restartTimer();
     }

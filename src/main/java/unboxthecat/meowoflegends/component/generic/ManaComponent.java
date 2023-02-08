@@ -5,7 +5,7 @@ import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import unboxthecat.meowoflegends.GameState;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class ManaComponent implements MOLComponent {
-    private class ManaRegenerationTask extends BukkitRunnable {
+    private class ManaRegenerationTask implements Runnable {
         @Override
         public void run() {
             currentMana = Math.min(maxMana, Math.max(0.0, currentMana + manaRegenerationRate));
@@ -26,15 +26,14 @@ public class ManaComponent implements MOLComponent {
     private double currentMana;
     private double maxMana;
     private double manaRegenerationRate;
-    private BossBar manaBar;
-    private final ManaRegenerationTask manaRegenerationTask;
+    private final BossBar manaBar;
+    private BukkitTask manaRegenerationTask;
 
     public ManaComponent(double currentMana, double maxMana, double manaRegenerationRate) {
         this.currentMana = currentMana;
         this.maxMana = maxMana;
         this.manaRegenerationRate = manaRegenerationRate;
         this.manaBar = Bukkit.getServer().createBossBar(getManaTitle(), BarColor.BLUE, BarStyle.SOLID);
-        this.manaRegenerationTask = new ManaRegenerationTask();
     }
 
     public ManaComponent(Map<String, Object> data) {
@@ -42,7 +41,6 @@ public class ManaComponent implements MOLComponent {
         maxMana = (double) data.get("maxMana");
         manaRegenerationRate = (double) data.get("manaRegenerationRate");
         manaBar = Bukkit.getServer().createBossBar(getManaTitle(), BarColor.BLUE, BarStyle.SOLID);
-        manaRegenerationTask = new ManaRegenerationTask();
     }
 
     @Override
@@ -60,7 +58,8 @@ public class ManaComponent implements MOLComponent {
             manaBar.addPlayer((Player)owner.getEntity());
             manaBar.setVisible(true);
         }
-        manaRegenerationTask.runTaskTimerAsynchronously(GameState.getPlugin(), 0, GameState.secondToTick(1.0));
+
+        manaRegenerationTask = Bukkit.getScheduler().runTaskTimer(GameState.getPlugin(), new ManaRegenerationTask(), 0, GameState.secondToTick(1.0));
     }
 
     @Override

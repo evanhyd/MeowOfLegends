@@ -1,6 +1,5 @@
 package unboxthecat.meowoflegends.entity.generic;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Entity;
@@ -10,12 +9,11 @@ import unboxthecat.meowoflegends.tag.MOLTag;
 
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.UUID;
 
 public class MOLEntity implements ConfigurationSerializable {
-    private final Entity entity;
-    private Map<String, MOLComponent> components;
-    private Map<String, MOLTag> tags;
+    private Entity entity;
+    private final Map<String, MOLComponent> components;
+    private final Map<String, MOLTag> tags;
 
     /**
      * Construct a MOLEntity given by an Entity instance.
@@ -32,10 +30,8 @@ public class MOLEntity implements ConfigurationSerializable {
      * @param data serialized data.
      */
     public MOLEntity(Map<String, Object> data) {
-        this(Bukkit.getPlayer(UUID.fromString((String) data.get("UUID"))));
         components = (Map<String, MOLComponent>) data.get("components");
         tags = (Map<String, MOLTag>) data.get("tags");
-        components.forEach((name, component) -> component.onAttach(this));
     }
 
     /**
@@ -45,7 +41,6 @@ public class MOLEntity implements ConfigurationSerializable {
     @Override
     public @NotNull Map<String,Object> serialize() {
         Map<String, Object> data = new TreeMap<>();
-        data.put("UUID", entity.getUniqueId().toString());
         data.put("components", components);
         data.put("tags", tags);
         return data;
@@ -64,8 +59,8 @@ public class MOLEntity implements ConfigurationSerializable {
      * @param componentClass class of MOLComponent to get.
      * @return MOLComponent if exists, null otherwise.
      */
-    public MOLComponent getComponent(Class<?> componentClass) {
-        return components.get(componentClass.getName());
+    public <T extends MOLComponent> T getComponent(Class<T> componentClass) {
+        return componentClass.cast(components.get(componentClass.getName()));
     }
 
     /**
@@ -73,24 +68,8 @@ public class MOLEntity implements ConfigurationSerializable {
      * @param tagClass class of MOLTag to get.
      * @return MOLTag if exists, null otherwise.
      */
-    public MOLTag getTag(Class<?> tagClass) {
-        return tags.get(tagClass.getName());
-    }
-
-    /**
-     * Get all MOLComponent from the MOLEntity.
-     * @return Map<String, MOLComponent> components
-     */
-    public @NotNull Map<String, MOLComponent> getComponents() {
-        return components;
-    }
-
-    /**
-     * Get all MOLTags from the MOLEntity.
-     * @return Map<String, MOLTag> tags
-     */
-    public @NotNull Map<String, MOLTag> getTags() {
-        return tags;
+    public <T extends MOLTag> T getTag(Class<T> tagClass) {
+        return tagClass.cast(tags.get(tagClass.getName()));
     }
 
     /**
@@ -152,6 +131,21 @@ public class MOLEntity implements ConfigurationSerializable {
         tags.remove(tagClass.getName());
     }
 
+    /**
+     * Set the entity that controls the MOLEntity.
+     * construct() should only be called when loading MOLEntity from the config file,
+     * since the internal entity may point to an invalid address.
+     * @param entity the Entity.
+     */
+    public void construct(Entity entity) {
+        this.entity = entity;
+        components.forEach((name, component) -> component.onAttach(this));
+    }
+
+    /**
+     * Remove all the components.
+     * destroy() should only be called when the MOLEntity is no longer needed.
+     */
     public void destroy() {
         components.forEach((name, component) -> component.onRemove(this));
     }
