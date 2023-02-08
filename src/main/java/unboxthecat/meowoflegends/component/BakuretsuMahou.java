@@ -29,13 +29,12 @@ public class BakuretsuMahou implements AbilityComponent, Listener {
 
     public static final int EXPLOSION_MAGMA_DEPTH = 1;
     public static final int EXPLOSION_MAGMA_HEIGHT = 1;
+    public static final int EXPLOSION_RING_COUNT = 6;
     public static final double EXPLOSION_CHANNELING_IN_SECONDS = 5.0;
     public static final double EXPLOSION_MIN_RADIUS = 20.0;
     public static final double EXPLOSION_MAX_RADIUS = 30.0;
     public static final double EXPLOSION_HEIGHT = 50.0;
-    public static final int EXPLOSION_COUNT = 6;
-    public static final double EXPLOSION_DAMAGE = 200.0;
-
+    public static final double EXPLOSION_POWER = 200.0;
     public static final int EXPLOSION_FIRE_TICK = GameState.secondToTick(5.0);
 
 
@@ -138,17 +137,21 @@ public class BakuretsuMahou implements AbilityComponent, Listener {
             //turn into magma block, then cooldown to stone
             Bukkit.getScheduler().runTaskLater(GameState.getPlugin(), () -> {
                 baseBlock.setType(Material.MAGMA_BLOCK);
-                Bukkit.getScheduler().runTaskLater(GameState.getPlugin(), () -> baseBlock.setType(Material.STONE), magmaCooldownInTicks);
+                Bukkit.getScheduler().runTaskLater(GameState.getPlugin(), () -> {
+                    if (baseBlock.getType().isSolid()) {
+                        baseBlock.setType(Material.STONE);
+                    }
+                }, magmaCooldownInTicks);
             }, GameState.secondToTick(magmaDelayInSeconds));
 
             magmaDelayInSeconds += magmaChannelingInSeconds;
         }
 
         //spawn ring
-        double ringChannelingInSeconds = EXPLOSION_CHANNELING_IN_SECONDS / EXPLOSION_COUNT;
-        for (int ring = 0; ring < EXPLOSION_COUNT; ++ring) {
+        double ringChannelingInSeconds = EXPLOSION_CHANNELING_IN_SECONDS / EXPLOSION_RING_COUNT;
+        for (int ring = 0; ring < EXPLOSION_RING_COUNT; ++ring) {
             double ringRadius = new Random().nextDouble(EXPLOSION_MIN_RADIUS, EXPLOSION_MAX_RADIUS);
-            double y = explosionOrigin.getY() + EXPLOSION_HEIGHT / EXPLOSION_COUNT * ring;
+            double y = explosionOrigin.getY() + EXPLOSION_HEIGHT / EXPLOSION_RING_COUNT * ring;
 
             int spawnDelayInTicks = GameState.secondToTick(ringChannelingInSeconds * ring);
             BukkitRunnable spawningRing = new BukkitRunnable() {
@@ -184,10 +187,11 @@ public class BakuretsuMahou implements AbilityComponent, Listener {
             var entities = world.getNearbyEntities(explosionOrigin, EXPLOSION_MAX_RADIUS, EXPLOSION_HEIGHT, EXPLOSION_MAX_RADIUS);
             for (Entity entity : entities) {
                 if (entity instanceof LivingEntity livingEntity) {
-                    livingEntity.damage(EXPLOSION_DAMAGE, owner.getEntity());
                     livingEntity.setFireTicks(livingEntity.getFireTicks() + EXPLOSION_FIRE_TICK);
                 }
             }
+            //https://minecraft.fandom.com/wiki/Explosion#Explosion_strength
+            world.createExplosion(explosionOrigin, (float) EXPLOSION_POWER, true, true, owner.getEntity());
 
             //draw explosion bar
             BukkitRunnable spawningRing = new BukkitRunnable() {
