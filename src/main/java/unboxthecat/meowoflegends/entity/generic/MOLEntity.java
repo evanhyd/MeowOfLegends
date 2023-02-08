@@ -4,6 +4,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import unboxthecat.meowoflegends.component.generic.MOLComponent;
 import unboxthecat.meowoflegends.tag.MOLTag;
 
@@ -50,6 +51,7 @@ public class MOLEntity implements ConfigurationSerializable {
      * Get Entity, can be null.
      * @return Entity instance.
      */
+    @Nullable
     public Entity getEntity() {
         return this.entity;
     }
@@ -59,7 +61,8 @@ public class MOLEntity implements ConfigurationSerializable {
      * @param componentClass class of MOLComponent to get.
      * @return MOLComponent if exists, null otherwise.
      */
-    public <T extends MOLComponent> T getComponent(Class<T> componentClass) {
+    @Nullable
+    public <T extends MOLComponent> T  getComponent(Class<T> componentClass) {
         return componentClass.cast(components.get(componentClass.getName()));
     }
 
@@ -68,6 +71,7 @@ public class MOLEntity implements ConfigurationSerializable {
      * @param tagClass class of MOLTag to get.
      * @return MOLTag if exists, null otherwise.
      */
+    @Nullable
     public <T extends MOLTag> T getTag(Class<T> tagClass) {
         return tagClass.cast(tags.get(tagClass.getName()));
     }
