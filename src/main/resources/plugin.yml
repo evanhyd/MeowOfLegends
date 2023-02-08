@@ -6,10 +6,12 @@ authors: [ UnboxTheCat, Yarh ]
 description: Meow Meow Meow Explosion!
 website: https://github.com/evanhyd
 permissions:
-  MeowOfLegends.all:
-    children:
-      MeowOfLegends.debug: true
-      MeowOfLegends.mana: true
+  MeowOfLegends.debug:
+    description: default permission for debug commands
+    default: op
+  MeowOfLegends.mana:
+    description: default permission for mana commands
+    default: true
 commands:
   debug:
     description: Prints out relevant debug information

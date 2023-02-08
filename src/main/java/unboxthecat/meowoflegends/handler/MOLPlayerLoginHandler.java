@@ -9,6 +9,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import unboxthecat.meowoflegends.GameState;
 import unboxthecat.meowoflegends.component.BakuretsuMahou;
+import unboxthecat.meowoflegends.component.FizzUrchinStrike;
 import unboxthecat.meowoflegends.component.generic.ManaComponent;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 
