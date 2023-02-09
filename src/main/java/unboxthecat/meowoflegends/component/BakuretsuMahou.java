@@ -95,8 +95,7 @@ public class BakuretsuMahou extends AbilityComponent implements Listener {
 
     private boolean isUsingBlazeRod(Action action) {
         Player player = (Player)(owner.getEntity());
-        return player.getInventory().getHeldItemSlot() == 0 &&
-               player.getInventory().getItemInMainHand().getType() == Material.BLAZE_ROD &&
+        return player.getInventory().getItemInMainHand().getType() == Material.BLAZE_ROD &&
                (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK);
     }
 

@@ -1,7 +1,6 @@
 package unboxthecat.meowoflegends.component;
 
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
@@ -18,7 +17,7 @@ import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class UrchinStrike implements AbilityComponent, Listener {
+public class UrchinStrike extends AbilityComponent implements Listener {
 
     //these are all standard
     public static double coolDownInSeconds = 3;
@@ -29,13 +28,15 @@ public class UrchinStrike implements AbilityComponent, Listener {
     //serialize these data
     private MOLEntity owner;
 
-    private CooldownComponent cooldownComponent;
+    private final CooldownComponent cooldownComponent;
 
     public UrchinStrike() {
+        super(true);
         cooldownComponent = new CooldownComponent(coolDownInSeconds);
     }
 
-    public UrchinStrike(final double initialCoolDownInSeconds, final double initialManaCost){
+    public UrchinStrike(final double initialCoolDownInSeconds, final double initialManaCost) {
+        super(true);
         coolDownInSeconds = initialCoolDownInSeconds;
         manaCost = initialManaCost;
         cooldownComponent = new CooldownComponent(coolDownInSeconds);
@@ -45,7 +46,7 @@ public class UrchinStrike implements AbilityComponent, Listener {
 
     @Override
     public void onAttach(MOLEntity owner) {
-        //initialize resources
+        setUpAbilitySlot(owner);
         this.owner = owner;
         cooldownComponent.onAttach(this.owner);
         Bukkit.getServer().getPluginManager().registerEvents(this, GameState.getPlugin());
@@ -53,9 +54,8 @@ public class UrchinStrike implements AbilityComponent, Listener {
 
     @Override
     public void onRemove(MOLEntity owner) {
-        //uninitialized resources
-        HandlerList.unregisterAll(this);
         cooldownComponent.onRemove(owner);
+        HandlerList.unregisterAll(this);
     }
 
     @NotNull
@@ -72,27 +72,19 @@ public class UrchinStrike implements AbilityComponent, Listener {
     }
 
     private boolean hasMana(){
-        ManaComponent manaComponent = (ManaComponent) owner.getComponent(ManaComponent.class);
-        return manaComponent.getCurrentMana() >= manaCost;
+        ManaComponent manaComponent = owner.getComponent(ManaComponent.class);
+        return manaComponent != null && manaComponent.getCurrentMana() >= manaCost;
     }
 
-    private boolean onHotBarSlot(int slotIndex){
-        Player player = (Player) owner.getEntity();
-        int hotBarSlot = player.getInventory().getHeldItemSlot();
-        return hotBarSlot == slotIndex;
-    }
-
-    private boolean isUsingTrident(Action action){
+    private boolean isUsingTrident(Action action) {
         return (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK);
     }
 
 
     private void applyCost(){
-        //mana
         ManaComponent manaComponent = owner.getComponent(ManaComponent.class);
+        assert manaComponent != null;
         manaComponent.consumeMana(manaCost);
-
-        //cool down
         cooldownComponent.restartTimer();
     }
 
@@ -105,11 +97,7 @@ public class UrchinStrike implements AbilityComponent, Listener {
 
     @EventHandler
     private void trigger(PlayerInteractEvent event){
-        if(!onCoolDown() &&
-                hasMana() &&
-                onHotBarSlot(0) &&
-                isUsingTrident(event.getAction())
-                                                ){
+        if(!onCoolDown() && hasMana() && isUsingTrident(event.getAction())) {
             applyCost();
             urchinStrike();
         }
