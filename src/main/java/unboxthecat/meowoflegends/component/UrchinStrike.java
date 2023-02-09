@@ -18,26 +18,27 @@ import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class FizzUrchinStrike implements AbilityComponent, Listener {
+public class UrchinStrike implements AbilityComponent, Listener {
 
     //these are all standard
-    public static double coolDownInSeconds;
-    public static double manaPercentCost;
-    public static double channelingTime;
-    public static double damage;
+    public static double coolDownInSeconds = 3;
+    public static double manaCost = 20;
+    public static double channelingTime = 2;
+    public static double damage = 2;
 
     //serialize these data
     private MOLEntity owner;
 
     private CooldownComponent cooldownComponent;
 
-    public FizzUrchinStrike() {
+    public UrchinStrike() {
         cooldownComponent = new CooldownComponent(coolDownInSeconds);
     }
 
-    public FizzUrchinStrike(final double initialCoolDownInSeconds, final double initialManaPercentCost){
+    public UrchinStrike(final double initialCoolDownInSeconds, final double initialManaCost){
         coolDownInSeconds = initialCoolDownInSeconds;
-        manaPercentCost = initialManaPercentCost;
+        manaCost = initialManaCost;
+        cooldownComponent = new CooldownComponent(coolDownInSeconds);
     }
 
 
@@ -65,14 +66,14 @@ public class FizzUrchinStrike implements AbilityComponent, Listener {
         return data;
     }
 
+
     private boolean onCoolDown(){
-        return cooldownComponent.isReady();
+        return !cooldownComponent.isReady();
     }
 
     private boolean hasMana(){
         ManaComponent manaComponent = (ManaComponent) owner.getComponent(ManaComponent.class);
-        double currentManaPercent = (manaComponent.getCurrentMana() / manaComponent.getMaxMana()) * 100;
-        return manaPercentCost < currentManaPercent;
+        return manaComponent.getCurrentMana() >= manaCost;
     }
 
     private boolean onHotBarSlot(int slotIndex){
@@ -88,8 +89,8 @@ public class FizzUrchinStrike implements AbilityComponent, Listener {
 
     private void applyCost(){
         //mana
-        ManaComponent manaComponent = (ManaComponent) owner.getComponent(ManaComponent.class);
-        manaComponent.consumeMana(manaPercentCost * manaComponent.getMaxMana());
+        ManaComponent manaComponent = owner.getComponent(ManaComponent.class);
+        manaComponent.consumeMana(manaCost);
 
         //cool down
         cooldownComponent.restartTimer();
@@ -97,14 +98,18 @@ public class FizzUrchinStrike implements AbilityComponent, Listener {
 
     private void urchinStrike(){
         Vector direction = owner.getEntity().getLocation().getDirection();
+        System.out.println("using urchin strike");
         System.out.println(direction);
+
     }
 
     @EventHandler
     private void trigger(PlayerInteractEvent event){
-        if(!onCoolDown() && hasMana() &&
+        if(!onCoolDown() &&
+                hasMana() &&
                 onHotBarSlot(0) &&
-                isUsingTrident(event.getAction())){
+                isUsingTrident(event.getAction())
+                                                ){
             applyCost();
             urchinStrike();
         }
