@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import unboxthecat.meowoflegends.component.generic.MOLComponent;
 import unboxthecat.meowoflegends.tag.MOLTag;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -51,7 +52,6 @@ public class MOLEntity implements ConfigurationSerializable {
      * Get Entity, can be null.
      * @return Entity instance.
      */
-    @Nullable
     public Entity getEntity() {
         return this.entity;
     }
@@ -74,6 +74,22 @@ public class MOLEntity implements ConfigurationSerializable {
     @Nullable
     public <T extends MOLTag> T getTag(Class<T> tagClass) {
         return tagClass.cast(tags.get(tagClass.getName()));
+    }
+
+    /**
+     * Get all MOLComponents from the MOLEntity.
+     * @return components.
+     */
+    public Collection<MOLComponent> getComponents() {
+        return components.values();
+    }
+
+    /**
+     * Get all MOLTag from the MOLEntity.
+     * @return tags.
+     */
+    public Collection<MOLTag> getTags() {
+        return tags.values();
     }
 
     /**

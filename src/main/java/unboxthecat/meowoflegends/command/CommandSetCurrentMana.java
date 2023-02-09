@@ -51,7 +51,6 @@ public class CommandSetCurrentMana implements CommandExecutor{
             return true;
         }
 
-        //invalid commandSender attempts to use command
         return false;
     }
 }

@@ -17,6 +17,7 @@ public class MOLPlayerLoginHandler implements Listener {
 
     @EventHandler
     public void loadMOLPlayerData(PlayerJoinEvent event) {
+
         MOLEntity molEntity = null;
         if(event.getPlayer().hasPlayedBefore()) {
             String uuid = event.getPlayer().getUniqueId().toString();

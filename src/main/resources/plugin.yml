@@ -4,14 +4,18 @@ main: unboxthecat.meowoflegends.MeowOfLegends
 api-version: 1.19
 authors: [ UnboxTheCat, Yarh ]
 description: Meow Meow Meow Explosion!
-website: https://github.com/evanhyd
+website: https://github.com/evanhyd/MeowOfLegends
 permissions:
   MeowOfLegends.debug:
     description: default permission for debug commands
-    default: op
+    default: true
   MeowOfLegends.mana:
     description: default permission for mana commands
-    default: true
+    default: op
+  MeowOfLegends.movement:
+    description: default permission for movement commands
+    default: op
+
 commands:
   debug:
     description: Prints out relevant debug information
@@ -32,6 +36,11 @@ commands:
     description: Sets mana regeneration rate value
     usage: /<command>
     permission: MeowOfLegends.mana
+    permission-message: You do not have permission!
+  top:
+    description: Teleport player to the highest block of the current location.
+    usage: /<command>
+    permission: MeowOfLegends.movement
     permission-message: You do not have permission!
 
 

@@ -21,7 +21,7 @@ import unboxthecat.meowoflegends.helper.Geometric;
 
 import java.util.*;
 
-public class BakuretsuMahou implements AbilityComponent, Listener {
+public class BakuretsuMahou extends AbilityComponent implements Listener {
     //Tunable values
     public static final int EXPLOSION_TARGET_REACH = 200;
     public static final double COOLDOWN_IN_SECONDS = 3.0;
@@ -40,14 +40,16 @@ public class BakuretsuMahou implements AbilityComponent, Listener {
 
     private MOLEntity owner;
     private final CooldownComponent cooldownComponent;
-    private double manaPercentCost;
+    private final double manaPercentCost;
 
     public BakuretsuMahou(double cooldownInSeconds, double manaPercentCost) {
+        super(true);
         this.cooldownComponent = new CooldownComponent(cooldownInSeconds);
         this.manaPercentCost = manaPercentCost;
     }
 
     public BakuretsuMahou(Map<String, Object> data) {
+        super(true);
         manaPercentCost = (double) data.get("manaPercentCost");
         cooldownComponent = (CooldownComponent)(data.get("cooldownComponent"));
     }
@@ -62,6 +64,7 @@ public class BakuretsuMahou implements AbilityComponent, Listener {
 
     @Override
     public void onAttach(MOLEntity owner) {
+        setUpAbilitySlot(owner);
         this.owner = owner;
         cooldownComponent.onAttach(this.owner);
         Bukkit.getServer().getPluginManager().registerEvents(this, GameState.getPlugin());
@@ -75,7 +78,6 @@ public class BakuretsuMahou implements AbilityComponent, Listener {
 
     @EventHandler
     public void trigger(PlayerInteractEvent event) {
-
         if (isOwner(event.getPlayer()) &&
             isUsingBlazeRod(event.getAction()) &&
             isLookingAtSolidBlock() &&
@@ -216,7 +218,13 @@ public class BakuretsuMahou implements AbilityComponent, Listener {
 
     private void applyCost() {
         ManaComponent manaComponent = owner.getComponent(ManaComponent.class);
+        assert manaComponent != null;
         manaComponent.consumeMana(manaComponent.getMaxMana() * manaPercentCost);
         cooldownComponent.restartTimer();
+    }
+
+    @Override
+    public String toString() {
+        return super.toString();
     }
 }
