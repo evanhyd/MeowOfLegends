@@ -11,7 +11,6 @@ import org.jetbrains.annotations.NotNull;
 import unboxthecat.meowoflegends.GameState;
 import unboxthecat.meowoflegends.component.generic.AbilityComponent;
 import unboxthecat.meowoflegends.component.generic.CooldownComponent;
-import unboxthecat.meowoflegends.component.generic.ManaComponent;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 
 import java.util.Map;
@@ -54,8 +53,8 @@ public class UrchinStrike extends AbilityComponent implements Listener {
 
     @Override
     public void onRemove(MOLEntity owner) {
-        cooldownComponent.onRemove(owner);
         HandlerList.unregisterAll(this);
+        cooldownComponent.onRemove(owner);
     }
 
     @NotNull
@@ -73,7 +72,7 @@ public class UrchinStrike extends AbilityComponent implements Listener {
 
     private boolean hasMana(){
         ManaComponent manaComponent = owner.getComponent(ManaComponent.class);
-        return manaComponent != null && manaComponent.getCurrentMana() >= manaCost;
+        return manaComponent != null && manaComponent.getMana() >= manaCost;
     }
 
     private boolean isUsingTrident(Action action) {
@@ -97,7 +96,7 @@ public class UrchinStrike extends AbilityComponent implements Listener {
 
     @EventHandler
     private void trigger(PlayerInteractEvent event){
-        if(!onCoolDown() && hasMana() && isUsingTrident(event.getAction())) {
+        if(!onCoolDown() && hasMana() && isUsingAbilitySlot(event.getPlayer()) && isUsingTrident(event.getAction())) {
             applyCost();
             urchinStrike();
         }

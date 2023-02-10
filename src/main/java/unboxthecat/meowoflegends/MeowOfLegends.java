@@ -9,7 +9,7 @@ import unboxthecat.meowoflegends.component.BakuretsuMahou;
 import unboxthecat.meowoflegends.component.generic.AbilityComponent;
 import unboxthecat.meowoflegends.component.generic.CooldownComponent;
 import unboxthecat.meowoflegends.component.generic.MOLComponent;
-import unboxthecat.meowoflegends.component.generic.ManaComponent;
+import unboxthecat.meowoflegends.component.ManaComponent;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 import unboxthecat.meowoflegends.handler.LoginMessageHandler;
 import unboxthecat.meowoflegends.handler.MOLPlayerLoginHandler;
@@ -33,10 +33,7 @@ public final class MeowOfLegends extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerDeathMessageHandler(), this);
 
         addCommand("debug", new CommandDebug());
-        addCommand("setcurrentmana", new CommandSetCurrentMana());
-        addCommand("setmaxmana", new CommandSetMaxMana());
-        addCommand("setmanaregenerationrate", new CommandSetManaRegenerationRate());
-        addCommand("debug", new CommandSetManaRegenerationRate());
+        addCommand("manacomponent", new CommandManaComponent());
         addCommand("top", new CommandTop());
     }
 

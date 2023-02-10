@@ -15,7 +15,6 @@ import org.jetbrains.annotations.NotNull;
 import unboxthecat.meowoflegends.GameState;
 import unboxthecat.meowoflegends.component.generic.AbilityComponent;
 import unboxthecat.meowoflegends.component.generic.CooldownComponent;
-import unboxthecat.meowoflegends.component.generic.ManaComponent;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 import unboxthecat.meowoflegends.helper.Geometric;
 
@@ -79,6 +78,7 @@ public class BakuretsuMahou extends AbilityComponent implements Listener {
     @EventHandler
     public void trigger(PlayerInteractEvent event) {
         if (isOwner(event.getPlayer()) &&
+            isUsingAbilitySlot(event.getPlayer()) &&
             isUsingBlazeRod(event.getAction()) &&
             isLookingAtSolidBlock() &&
             isManaSufficient() &&
@@ -94,8 +94,7 @@ public class BakuretsuMahou extends AbilityComponent implements Listener {
     }
 
     private boolean isUsingBlazeRod(Action action) {
-        Player player = (Player)(owner.getEntity());
-        return player.getInventory().getItemInMainHand().getType() == Material.BLAZE_ROD &&
+        return ((Player)owner.getEntity()).getInventory().getItemInMainHand().getType() == Material.BLAZE_ROD &&
                (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK);
     }
 
@@ -106,7 +105,7 @@ public class BakuretsuMahou extends AbilityComponent implements Listener {
 
     private boolean isManaSufficient() {
         ManaComponent manaComponent = owner.getComponent(ManaComponent.class);
-        return manaComponent != null && manaComponent.getCurrentMana() >= manaComponent.getMaxMana() * manaPercentCost;
+        return manaComponent != null && manaComponent.getMana() >= manaComponent.getMaxMana() * manaPercentCost;
     }
 
     private boolean isCooldownReady() {

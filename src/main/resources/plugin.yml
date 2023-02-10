@@ -18,22 +18,12 @@ permissions:
 
 commands:
   debug:
-    description: Prints out relevant debug information
+    description: Prints out relevant debug information.
     usage: /<command>
     permission: MeowOfLegends.debug
     permission-message: You do not have permission!
-  setcurrentmana:
-    description: Sets current mana value
-    usage: /<command>
-    permission: MeowOfLegends.mana
-    permission-message: You do not have permission!
-  setmaxmana:
-    description: Sets max mana value
-    usage: /<command>
-    permission: MeowOfLegends.mana
-    permission-message: You do not have permission!
-  setmanaregenerationrate:
-    description: Sets mana regeneration rate value
+  manacomponent:
+    description: Set mana component property by calling class function directly through reflection.
     usage: /<command>
     permission: MeowOfLegends.mana
     permission-message: You do not have permission!

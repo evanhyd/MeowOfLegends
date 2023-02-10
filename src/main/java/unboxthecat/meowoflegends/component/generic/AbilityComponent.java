@@ -1,9 +1,9 @@
 package unboxthecat.meowoflegends.component.generic;
 
+import org.bukkit.entity.Player;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 
 import java.util.Arrays;
-import java.util.Set;
 
 public abstract class AbilityComponent implements MOLComponent {
     private final boolean isActiveAbility;
@@ -28,7 +28,7 @@ public abstract class AbilityComponent implements MOLComponent {
         Arrays.fill(availableSlot, true);
 
         for (MOLComponent component : molEntity.getComponents()) {
-            if (component instanceof AbilityComponent) {
+            if (component instanceof AbilityComponent && component != this) {
                 availableSlot[((AbilityComponent) component).abilitySlot] = false;
             }
         }
@@ -41,9 +41,13 @@ public abstract class AbilityComponent implements MOLComponent {
         }
     }
 
+    protected boolean isUsingAbilitySlot(Player player) {
+        return player.getInventory().getHeldItemSlot() == abilitySlot;
+    }
+
     @Override
     public String toString() {
         return "Active Ability: " + isActiveAbility + "\n" +
-                "Ability Slot: " + abilitySlot + "\n";
+               "Ability Slot: " + abilitySlot + "\n";
     }
 }

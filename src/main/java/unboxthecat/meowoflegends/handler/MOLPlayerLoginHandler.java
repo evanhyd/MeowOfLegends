@@ -8,8 +8,9 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import unboxthecat.meowoflegends.GameState;
+import unboxthecat.meowoflegends.component.BakuretsuMahou;
 import unboxthecat.meowoflegends.component.UrchinStrike;
-import unboxthecat.meowoflegends.component.generic.ManaComponent;
+import unboxthecat.meowoflegends.component.ManaComponent;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 
 public class MOLPlayerLoginHandler implements Listener {
@@ -25,8 +26,8 @@ public class MOLPlayerLoginHandler implements Listener {
             molEntity.construct(event.getPlayer());
         } else {
             molEntity = new MOLEntity(event.getPlayer());
-            molEntity.attachComponent(new ManaComponent(0.0, 50.0, 1.0));
-            //molEntity.attachComponent(new BakuretsuMahou(BakuretsuMahou.COOLDOWN_IN_SECONDS, BakuretsuMahou.MANA_PERCENT_COST));
+            molEntity.attachComponent(new ManaComponent(100.0, 5.0, 1.0, 0.1));
+            molEntity.attachComponent(new BakuretsuMahou(BakuretsuMahou.COOLDOWN_IN_SECONDS, BakuretsuMahou.MANA_PERCENT_COST));
             molEntity.attachComponent(new UrchinStrike(3, 20));
         }
         GameState.getPlayers().put(event.getPlayer().getUniqueId(), molEntity);
