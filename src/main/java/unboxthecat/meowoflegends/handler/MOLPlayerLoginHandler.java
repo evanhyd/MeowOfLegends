@@ -28,7 +28,7 @@ public class MOLPlayerLoginHandler implements Listener {
             molEntity = new MOLEntity(event.getPlayer());
             molEntity.attachComponent(new ManaComponent(100.0, 5.0, 1.0, 0.1));
             molEntity.attachComponent(new BakuretsuMahou(BakuretsuMahou.COOLDOWN_IN_SECONDS, BakuretsuMahou.MANA_PERCENT_COST));
-            molEntity.attachComponent(new UrchinStrike(3, 20));
+            molEntity.attachComponent(new UrchinStrike(3, 5));
         }
         GameState.getPlayers().put(event.getPlayer().getUniqueId(), molEntity);
         event.getPlayer().setGameMode(GameMode.CREATIVE);
