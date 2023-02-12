@@ -6,6 +6,7 @@ import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.plugin.java.JavaPlugin;
 import unboxthecat.meowoflegends.command.*;
 import unboxthecat.meowoflegends.component.BakuretsuMahou;
+import unboxthecat.meowoflegends.component.UrchinStrike;
 import unboxthecat.meowoflegends.component.base.AbilityComponent;
 import unboxthecat.meowoflegends.component.generic.TimerComponent;
 import unboxthecat.meowoflegends.component.base.MOLComponent;
@@ -28,6 +29,7 @@ public final class MeowOfLegends extends JavaPlugin {
         ConfigurationSerialization.registerClass(TimerComponent.class);
         ConfigurationSerialization.registerClass(ManaComponent.class);
         ConfigurationSerialization.registerClass(BakuretsuMahou.class);
+        ConfigurationSerialization.registerClass(UrchinStrike.class);
         getServer().getPluginManager().registerEvents(new MOLPlayerLoginHandler(), this);
         getServer().getPluginManager().registerEvents(new LoginMessageHandler(), this);
         getServer().getPluginManager().registerEvents(new PlayerDeathMessageHandler(), this);

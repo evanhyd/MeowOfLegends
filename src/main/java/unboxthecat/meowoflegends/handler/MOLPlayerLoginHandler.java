@@ -30,7 +30,7 @@ public class MOLPlayerLoginHandler implements Listener {
             molEntity.attachComponent(new ManaComponent(100.0, 5.0, 1.0, 0.1));
             molEntity.attachComponent(new HealthComponent(5.0, 0.5, 0.5, 0.0));
             molEntity.attachComponent(new BakuretsuMahou());
-            molEntity.attachComponent(new UrchinStrike(3, 5));
+            molEntity.attachComponent(new UrchinStrike());
         }
         GameState.getPlayers().put(event.getPlayer().getUniqueId(), molEntity);
         event.getPlayer().setGameMode(GameMode.CREATIVE);

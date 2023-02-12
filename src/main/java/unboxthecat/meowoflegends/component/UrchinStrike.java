@@ -1,6 +1,7 @@
 package unboxthecat.meowoflegends.component;
 
 import org.bukkit.*;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -21,36 +22,37 @@ import java.util.TreeMap;
 
 public class UrchinStrike extends AbilityComponent implements Listener {
 
-    //these are all standard
-    public static double coolDownInSeconds = 3;
-    public static double manaCost = 20;
-    public static double channelingTime = 2;
-    public static double damage = 2;
 
     //serialize these data
     private MOLEntity owner;
-
     private final TimerComponent cooldown;
+    private ManaComponent mana;
 
     public UrchinStrike() {
         super(true);
-        cooldown = new TimerComponent(coolDownInSeconds);
+        cooldown = new TimerComponent();
     }
 
-    public UrchinStrike(final double initialCoolDownInSeconds, final double initialManaCost) {
+    public UrchinStrike(Map<String, Object> data){
         super(true);
-        coolDownInSeconds = initialCoolDownInSeconds;
-        manaCost = initialManaCost;
-        cooldown = new TimerComponent(coolDownInSeconds);
+        cooldown = (TimerComponent) data.get("cooldown");
     }
 
-
+    @NotNull
+    @Override
+    public Map<String, Object> serialize() {
+        Map<String, Object> data = new TreeMap<>();
+        data.put("cooldown", cooldown);
+        return data;
+    }
 
     @Override
     public void onAttach(MOLEntity owner) {
         setUpAbilitySlot(owner);
         this.owner = owner;
         cooldown.onAttach(this.owner);
+        mana = owner.getComponent(ManaComponent.class);
+        assert(mana != null);
         Bukkit.getServer().getPluginManager().registerEvents(this, GameState.getPlugin());
     }
 
@@ -58,24 +60,37 @@ public class UrchinStrike extends AbilityComponent implements Listener {
     public void onRemove(MOLEntity owner) {
         HandlerList.unregisterAll(this);
         cooldown.onRemove(owner);
+        this.owner = null;
     }
 
-    @NotNull
-    @Override
-    public Map<String, Object> serialize() {
-        Map<String, Object> data = new TreeMap<String, Object>();
-        //idk what data to save
-        return data;
-    }
+    @EventHandler
+    private void trigger(PlayerInteractEvent event){
+        if(event.getPlayer() != owner.getEntity()){
+            return;
+        }
 
+        if(isUsingAbilitySlot(event.getPlayer()) && isUsingTrident(event.getAction()) && !onCoolDown() && hasMana()){
+
+            RayTraceResult result = rayTracing();
+            if(result == null || result.getHitEntity() == null){
+                owner.getEntity().sendMessage(ChatColor.YELLOW + "must select target for urchin strike");
+                return;
+            }
+
+
+            owner.getEntity().sendMessage(ChatColor.GREEN + "urchin strike hit " + result.getHitEntity().getName());
+            applyCost();
+            urchinStrike(result.getHitEntity());
+        }
+
+    }
 
     private boolean onCoolDown(){
         return !cooldown.isReady();
     }
 
     private boolean hasMana(){
-        ManaComponent manaComponent = owner.getComponent(ManaComponent.class);
-        return manaComponent != null && manaComponent.getMana() >= manaCost;
+        return mana.getMana() >= getAbilityManaCost();
     }
 
     private boolean isUsingTrident(Action action) {
@@ -92,43 +107,29 @@ public class UrchinStrike extends AbilityComponent implements Listener {
         Location startLocation = player.getEyeLocation().add(direction.multiply(0.5));
 
         double maxDistance = 20;
-        RayTraceResult result = player.getWorld().rayTraceEntities(startLocation, direction, maxDistance);
+        return  player.getWorld().rayTraceEntities(startLocation, direction, maxDistance);
 
-        return result;
     }
-
 
     private void applyCost(){
-        ManaComponent manaComponent = owner.getComponent(ManaComponent.class);
-        assert manaComponent != null;
-        manaComponent.consumeMana(manaCost);
-        cooldown.startCooldown();
+        mana.consumeMana(getAbilityManaCost());
+        cooldown.countDown(getAbilityCoolDownInSeconds());
     }
 
-    private void urchinStrike(RayTraceResult result){
+    private void urchinStrike(Entity target){
         Player player = (Player) owner.getEntity();
-        Vector direction = player.getLocation().getDirection();
-        result.getHitEntity().setFireTicks(100);
+        Vector direction = player.getEyeLocation().getDirection();
+        target.setFireTicks(100);
         player.setVelocity(direction.multiply(10));
-
     }
 
-    @EventHandler
-    private void trigger(PlayerInteractEvent event){
-        if(isUsingAbilitySlot(event.getPlayer()) && isUsingTrident(event.getAction()) && !onCoolDown() && hasMana()){
-
-            RayTraceResult result = rayTracing();
-            if(result == null || result.getHitEntity() == null){
-                owner.getEntity().sendMessage(ChatColor.YELLOW + "must select target for urchin strike");
-                return;
-            }
-
-
-            owner.getEntity().sendMessage(ChatColor.GREEN + "urchin strike hit " + result.getHitEntity().getName());
-            applyCost();
-            urchinStrike(result);
-        }
-
+    double getAbilityManaCost(){
+        //int level = (owner.getEntity() instanceof Player player ? player.getLevel() : 0);
+        return 10;
     }
 
+    double getAbilityCoolDownInSeconds(){
+        int level = (owner.getEntity() instanceof Player player ? player.getLevel() : 0);
+        return Math.max(2, 10 - level);
+    }
 }
