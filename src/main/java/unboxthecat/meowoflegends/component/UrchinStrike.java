@@ -7,7 +7,6 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
@@ -31,18 +30,18 @@ public class UrchinStrike extends AbilityComponent implements Listener {
     //serialize these data
     private MOLEntity owner;
 
-    private final TimerComponent cooldownComponent;
+    private final TimerComponent cooldown;
 
     public UrchinStrike() {
         super(true);
-        cooldownComponent = new TimerComponent(coolDownInSeconds);
+        cooldown = new TimerComponent(coolDownInSeconds);
     }
 
     public UrchinStrike(final double initialCoolDownInSeconds, final double initialManaCost) {
         super(true);
         coolDownInSeconds = initialCoolDownInSeconds;
         manaCost = initialManaCost;
-        cooldownComponent = new TimerComponent(coolDownInSeconds);
+        cooldown = new TimerComponent(coolDownInSeconds);
     }
 
 
@@ -51,14 +50,14 @@ public class UrchinStrike extends AbilityComponent implements Listener {
     public void onAttach(MOLEntity owner) {
         setUpAbilitySlot(owner);
         this.owner = owner;
-        cooldownComponent.onAttach(this.owner);
+        cooldown.onAttach(this.owner);
         Bukkit.getServer().getPluginManager().registerEvents(this, GameState.getPlugin());
     }
 
     @Override
     public void onRemove(MOLEntity owner) {
         HandlerList.unregisterAll(this);
-        cooldownComponent.onRemove(owner);
+        cooldown.onRemove(owner);
     }
 
     @NotNull
@@ -71,7 +70,7 @@ public class UrchinStrike extends AbilityComponent implements Listener {
 
 
     private boolean onCoolDown(){
-        return !cooldownComponent.isReady();
+        return !cooldown.isReady();
     }
 
     private boolean hasMana(){
@@ -103,7 +102,7 @@ public class UrchinStrike extends AbilityComponent implements Listener {
         ManaComponent manaComponent = owner.getComponent(ManaComponent.class);
         assert manaComponent != null;
         manaComponent.consumeMana(manaCost);
-        cooldownComponent.startCooldown();
+        cooldown.startCooldown();
     }
 
     private void urchinStrike(RayTraceResult result){

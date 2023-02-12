@@ -196,11 +196,11 @@ public class BakuretsuMahou extends AbilityComponent implements Listener {
         final int EXPLOSION_TARGET_REACH = 200;
         return EXPLOSION_TARGET_REACH;
     }
-    private long getAbilityCooldown() {
+    private double getAbilityCooldown() {
         final double BASE_COOLDOWN_IN_SECONDS = GameState.tickToSecond(24000);
         final double COOLDOWN_REDUCE_PERCENTAGE = 0.995;
         final int level = (owner.getEntity() instanceof Player player) ? player.getLevel() : 0;
-        return (long) (BASE_COOLDOWN_IN_SECONDS * Math.pow(COOLDOWN_REDUCE_PERCENTAGE, level));
+        return (BASE_COOLDOWN_IN_SECONDS * Math.pow(COOLDOWN_REDUCE_PERCENTAGE, level));
     }
 
     private double getAbilityManaCost() {

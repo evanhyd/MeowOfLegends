@@ -1,17 +1,32 @@
 package unboxthecat.meowoflegends.component.generic;
 
+import org.bukkit.Bukkit;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerLevelChangeEvent;
+import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
+import unboxthecat.meowoflegends.GameState;
 import unboxthecat.meowoflegends.component.base.GrowableValueComponent;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 
 import java.util.Map;
 
-public class HealthComponent extends GrowableValueComponent {
+public class HealthComponent extends GrowableValueComponent implements Listener {
+    public class HealthRegenerationTask implements Runnable {
+        @Override
+        public void run() {
+            HealthComponent.this.updateCurrentValue();
+        }
+    }
     private MOLEntity owner;
     private AttributeInstance maxHealthInstance;
+    private BukkitTask healthRegenerationTask;
 
     public HealthComponent(double baseMaxHealth, double maxHealthGrowRate, double baseHealthRegeneration, double healthRegenerationGrowRate) {
         super(baseMaxHealth, maxHealthGrowRate, baseHealthRegeneration, healthRegenerationGrowRate);
@@ -31,20 +46,40 @@ public class HealthComponent extends GrowableValueComponent {
         this.owner = owner;
         this.maxHealthInstance = ((LivingEntity)owner.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH);
         assert this.maxHealthInstance != null;
+        this.healthRegenerationTask = Bukkit.getScheduler().runTaskTimer(GameState.getPlugin(), new HealthRegenerationTask(), 0, GameState.secondToTick(1.0));
+        Bukkit.getServer().getPluginManager().registerEvents(this, GameState.getPlugin());
+        updateBaseValue();
     }
 
     @Override
     public void onRemove(MOLEntity owner) {
+        HandlerList.unregisterAll(this);
+        this.healthRegenerationTask.cancel();
         this.maxHealthInstance = null;
         this.owner = null;
     }
+
     @Override
     protected void updateBaseValue() {
-
+        int level = (owner.getEntity() instanceof Player player) ? player.getLevel() : 0;
+        this.maxValue = this.baseMaxValue + this.maxValueGrowRate * level;
+        this.valueRegeneration = this.baseValueRegeneration + this.valueRegenerationGrowRate * level;
+        maxHealthInstance.setBaseValue(this.maxValue);
     }
 
     @Override
     protected void updateCurrentValue() {
+        if (owner.getEntity() instanceof LivingEntity livingEntity) {
+            double changeInHealth = livingEntity.getHealth() + valueRegeneration;
+            changeInHealth = Math.min(maxHealthInstance.getValue(), Math.max(0.0, changeInHealth));
+            livingEntity.setHealth(changeInHealth);
+        }
+    }
 
+    @EventHandler
+    public void onPlayerLevelChange(PlayerLevelChangeEvent event) {
+        if (event.getPlayer() == owner.getEntity()) {
+            updateBaseValue();
+        }
     }
 }
