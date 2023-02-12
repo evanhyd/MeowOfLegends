@@ -8,6 +8,7 @@ import unboxthecat.meowoflegends.command.*;
 import unboxthecat.meowoflegends.component.BakuretsuMahou;
 import unboxthecat.meowoflegends.component.UrchinStrike;
 import unboxthecat.meowoflegends.component.base.AbilityComponent;
+import unboxthecat.meowoflegends.component.generic.HealthComponent;
 import unboxthecat.meowoflegends.component.generic.TimerComponent;
 import unboxthecat.meowoflegends.component.base.MOLComponent;
 import unboxthecat.meowoflegends.component.generic.ManaComponent;
@@ -28,6 +29,7 @@ public final class MeowOfLegends extends JavaPlugin {
         ConfigurationSerialization.registerClass(AbilityComponent.class);
         ConfigurationSerialization.registerClass(TimerComponent.class);
         ConfigurationSerialization.registerClass(ManaComponent.class);
+        ConfigurationSerialization.registerClass(HealthComponent.class);
         ConfigurationSerialization.registerClass(BakuretsuMahou.class);
         ConfigurationSerialization.registerClass(UrchinStrike.class);
         getServer().getPluginManager().registerEvents(new MOLPlayerLoginHandler(), this);
