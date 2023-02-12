@@ -1,4 +1,4 @@
-package unboxthecat.meowoflegends.component.generic;
+package unboxthecat.meowoflegends.component.base;
 
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;

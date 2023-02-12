@@ -9,8 +9,9 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import unboxthecat.meowoflegends.GameState;
-import unboxthecat.meowoflegends.component.generic.AbilityComponent;
-import unboxthecat.meowoflegends.component.generic.CooldownComponent;
+import unboxthecat.meowoflegends.component.base.AbilityComponent;
+import unboxthecat.meowoflegends.component.generic.TimerComponent;
+import unboxthecat.meowoflegends.component.generic.ManaComponent;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 
 import java.util.Map;
@@ -27,18 +28,18 @@ public class UrchinStrike extends AbilityComponent implements Listener {
     //serialize these data
     private MOLEntity owner;
 
-    private final CooldownComponent cooldownComponent;
+    private final TimerComponent cooldownComponent;
 
     public UrchinStrike() {
         super(true);
-        cooldownComponent = new CooldownComponent(coolDownInSeconds);
+        cooldownComponent = new TimerComponent(coolDownInSeconds);
     }
 
     public UrchinStrike(final double initialCoolDownInSeconds, final double initialManaCost) {
         super(true);
         coolDownInSeconds = initialCoolDownInSeconds;
         manaCost = initialManaCost;
-        cooldownComponent = new CooldownComponent(coolDownInSeconds);
+        cooldownComponent = new TimerComponent(coolDownInSeconds);
     }
 
 
@@ -84,7 +85,7 @@ public class UrchinStrike extends AbilityComponent implements Listener {
         ManaComponent manaComponent = owner.getComponent(ManaComponent.class);
         assert manaComponent != null;
         manaComponent.consumeMana(manaCost);
-        cooldownComponent.restartTimer();
+        cooldownComponent.startCooldown();
     }
 
     private void urchinStrike(){

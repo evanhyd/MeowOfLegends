@@ -1,4 +1,4 @@
-package unboxthecat.meowoflegends.component;
+package unboxthecat.meowoflegends.component.generic;
 
 import org.bukkit.Bukkit;
 import org.bukkit.boss.BarColor;
@@ -12,7 +12,7 @@ import org.bukkit.event.player.PlayerLevelChangeEvent;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import unboxthecat.meowoflegends.GameState;
-import unboxthecat.meowoflegends.component.generic.GrowableValueComponent;
+import unboxthecat.meowoflegends.component.base.GrowableValueComponent;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 
 import java.util.Map;
@@ -47,9 +47,9 @@ public class ManaComponent extends GrowableValueComponent implements Listener {
     @Override
     public void onAttach(MOLEntity owner) {
         this.owner = owner;
-        if (owner.getEntity() instanceof Player) {
+        if (owner.getEntity() instanceof Player player) {
             this.manaBar = Bukkit.getServer().createBossBar("", BarColor.BLUE, BarStyle.SOLID);
-            this.manaBar.addPlayer((Player)owner.getEntity());
+            this.manaBar.addPlayer(player);
         }
         this.manaRegenerationTask = Bukkit.getScheduler().runTaskTimer(GameState.getPlugin(), new ManaRegenerationTask(), 0, GameState.secondToTick(1.0));
         Bukkit.getServer().getPluginManager().registerEvents(this, GameState.getPlugin());
@@ -60,13 +60,15 @@ public class ManaComponent extends GrowableValueComponent implements Listener {
     public void onRemove(MOLEntity owner) {
         HandlerList.unregisterAll(this);
         this.manaRegenerationTask.cancel();
-        this.manaBar.removeAll();
+        if (owner.getEntity() instanceof Player player) {
+            this.manaBar.removeAll();
+        }
         this.owner = null;
     }
 
     @Override
     protected void updateBaseValue() {
-        int level = ((Player)this.owner.getEntity()).getLevel();
+        int level = ((this.owner.getEntity() instanceof Player player) ? player.getLevel() : 0);
         this.maxValue = Math.max(0.0, this.baseMaxValue + this.maxValueGrowRate * level);
         this.valueRegeneration = this.baseValueRegeneration + this.valueRegenerationGrowRate * level;
         this.value = Math.min(this.maxValue, Math.max(0.0, this.value));
@@ -79,7 +81,9 @@ public class ManaComponent extends GrowableValueComponent implements Listener {
 
     @EventHandler
     public void onPlayerLevelChange(PlayerLevelChangeEvent event) {
-        updateBaseValue();
+        if (event.getPlayer() == owner.getEntity()) {
+            updateBaseValue();
+        }
     }
 
     public void consumeMana(double manaCost) {

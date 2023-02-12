@@ -1,8 +1,9 @@
-package unboxthecat.meowoflegends.component.generic;
+package unboxthecat.meowoflegends.component.base;
 
 import org.bukkit.entity.Player;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 
 public abstract class AbilityComponent implements MOLComponent {
@@ -19,7 +20,6 @@ public abstract class AbilityComponent implements MOLComponent {
      * @param molEntity the owner
      */
     protected void setUpAbilitySlot(MOLEntity molEntity) {
-
         if (!isActiveAbility) {
             return;
         }
@@ -27,11 +27,9 @@ public abstract class AbilityComponent implements MOLComponent {
         boolean[] availableSlot = new boolean[9];
         Arrays.fill(availableSlot, true);
 
-        for (MOLComponent component : molEntity.getComponents()) {
-            if (component instanceof AbilityComponent && component != this) {
-                availableSlot[((AbilityComponent) component).abilitySlot] = false;
-            }
-        }
+        molEntity.getComponents().stream()
+                .filter(component -> component instanceof AbilityComponent && component != this)
+                .forEach(component -> availableSlot[((AbilityComponent) component).abilitySlot] = false);
 
         for (int i = 0; i < availableSlot.length; ++i) {
             if (availableSlot[i]) {

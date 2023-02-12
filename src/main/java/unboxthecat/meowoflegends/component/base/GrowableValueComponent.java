@@ -1,4 +1,4 @@
-package unboxthecat.meowoflegends.component.generic;
+package unboxthecat.meowoflegends.component.base;
 
 import org.jetbrains.annotations.NotNull;
 
