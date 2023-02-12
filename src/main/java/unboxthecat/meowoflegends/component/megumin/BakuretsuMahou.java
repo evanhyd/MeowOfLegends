@@ -1,4 +1,4 @@
-package unboxthecat.meowoflegends.component;
+package unboxthecat.meowoflegends.component.megumin;
 
 import org.bukkit.*;
 import org.bukkit.block.Block;

@@ -1,4 +1,4 @@
-package unboxthecat.meowoflegends.component;
+package unboxthecat.meowoflegends.component.fizz;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
