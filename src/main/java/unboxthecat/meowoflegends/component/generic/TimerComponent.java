@@ -43,16 +43,16 @@ public class TimerComponent implements MOLComponent, Listener {
     @Override
     public void onAttach(MOLEntity owner) {
         this.owner = owner;
-        if (isPaused) {
-            activationTime += System.currentTimeMillis() - pausedTime;
-            isPaused = false;
-        }
-        Bukkit.getServer().getPluginManager().registerEvents(this, GameState.getPlugin());
+//        if (isPaused) {
+//            activationTime += System.currentTimeMillis() - pausedTime;
+//            isPaused = false;
+//        }
+//        Bukkit.getServer().getPluginManager().registerEvents(this, GameState.getPlugin());
     }
 
     @Override
     public void onRemove(MOLEntity owner) {
-        HandlerList.unregisterAll(this);
+//        HandlerList.unregisterAll(this);
         this.owner = null;
     }
 

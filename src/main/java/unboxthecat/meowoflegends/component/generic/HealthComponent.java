@@ -70,9 +70,11 @@ public class HealthComponent extends GrowableValueComponent implements Listener 
     @Override
     protected void updateCurrentValue() {
         if (owner.getEntity() instanceof LivingEntity livingEntity) {
-            double changeInHealth = livingEntity.getHealth() + valueRegeneration;
-            changeInHealth = Math.min(maxHealthInstance.getValue(), Math.max(0.0, changeInHealth));
-            livingEntity.setHealth(changeInHealth);
+            if (!livingEntity.isDead()) {
+                double changeInHealth = livingEntity.getHealth() + valueRegeneration;
+                changeInHealth = Math.min(maxHealthInstance.getValue(), Math.max(0.0, changeInHealth));
+                livingEntity.setHealth(changeInHealth);
+            }
         }
     }
 
@@ -81,5 +83,59 @@ public class HealthComponent extends GrowableValueComponent implements Listener 
         if (event.getPlayer() == owner.getEntity()) {
             updateBaseValue();
         }
+    }
+
+
+    /**
+     * Getter and Setter
+     */
+    public double getBaseMaxHealth() {
+        return this.baseMaxValue;
+    }
+
+    public double getMaxHealthGrowRate() {
+        return this.maxValueGrowRate;
+    }
+
+    public double getBaseHealthRegeneration() {
+        return this.baseValueRegeneration;
+    }
+
+    public double getHealthRegenerationGrowRate() {
+        return this.valueRegenerationGrowRate;
+    }
+
+    public double getMaxHealth() {
+        return this.maxValue;
+    }
+
+    public double getHealthRegeneration() {
+        return this.valueRegeneration;
+    }
+
+    public double getHealth() {
+        return (owner.getEntity() instanceof Player player) ? player.getHealth() : -1.0;
+    }
+
+    public void setBaseMaxHealth(double baseMaxHealth) {
+        this.baseMaxValue = Math.max(0.0, baseMaxHealth);
+        updateBaseValue();
+    }
+
+    public void setMaxHealthGrowRate(double maxHealthGrowRate) {
+        this.maxValueGrowRate = maxHealthGrowRate;
+    }
+
+    public void setBaseHealthRegeneration(double baseHealthRegeneration) {
+        this.baseValueRegeneration = baseHealthRegeneration;
+        updateBaseValue();
+    }
+
+    public void setHealthRegenerationGrowRate(double healthRegenerationGrowRate) {
+        this.valueRegenerationGrowRate = healthRegenerationGrowRate;
+    }
+
+    public void setHealth(double health) {
+        this.value = Math.min(this.maxValue, Math.max(0.0, health));
     }
 }

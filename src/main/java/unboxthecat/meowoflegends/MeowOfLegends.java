@@ -36,6 +36,7 @@ public final class MeowOfLegends extends JavaPlugin {
 
         addCommand("debug", new CommandDebug());
         addCommand("manacomponent", new CommandManaComponent());
+        addCommand("healthcomponent", new CommandHealthComponent());
         addCommand("top", new CommandTop());
     }
 

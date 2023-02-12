@@ -23,7 +23,7 @@ import java.util.*;
 public class BakuretsuMahou extends AbilityComponent implements Listener {
     private MOLEntity owner;
     private final TimerComponent cooldown;
-    private ManaComponent mana;
+    private ManaComponent manaView;
 
     public BakuretsuMahou() {
         super(true);
@@ -47,15 +47,13 @@ public class BakuretsuMahou extends AbilityComponent implements Listener {
         setUpAbilitySlot(owner);
         this.owner = owner;
         this.cooldown.onAttach(this.owner);
-        this.mana = this.owner.getComponent(ManaComponent.class); assert mana != null;
-        this.mana.onAttach(this.owner);
+        this.manaView = this.owner.getComponent(ManaComponent.class); assert manaView != null;
         Bukkit.getServer().getPluginManager().registerEvents(this, GameState.getPlugin());
     }
 
     @Override
     public void onRemove(MOLEntity owner) {
         HandlerList.unregisterAll(this);
-        this.mana.onRemove(this.owner);;
         this.cooldown.onRemove(this.owner);
         this.owner = null;
     }
@@ -89,7 +87,7 @@ public class BakuretsuMahou extends AbilityComponent implements Listener {
     }
 
     private boolean isManaSufficient() {
-        return this.mana.getMana() >= getAbilityManaCost();
+        return this.manaView.getMana() >= getAbilityManaCost();
     }
 
     private boolean isCooldownReady() {
@@ -188,7 +186,7 @@ public class BakuretsuMahou extends AbilityComponent implements Listener {
     }
 
     private void applyAbilityCost() {
-        this.mana.consumeMana(getAbilityManaCost());
+        this.manaView.consumeMana(getAbilityManaCost());
         this.cooldown.countDown(getAbilityCooldown());
     }
 
@@ -205,7 +203,7 @@ public class BakuretsuMahou extends AbilityComponent implements Listener {
 
     private double getAbilityManaCost() {
         final double MANA_PERCENT_COST = 0.15;
-        return mana.getMaxMana() * MANA_PERCENT_COST;
+        return manaView.getMaxMana() * MANA_PERCENT_COST;
     }
 
     public int getAbilityFireTick() {
@@ -230,6 +228,6 @@ public class BakuretsuMahou extends AbilityComponent implements Listener {
 
     @Override
     public String toString() {
-        return super.toString();
+        return super.toString() + cooldown.toString();
     }
 }

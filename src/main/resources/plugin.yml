@@ -12,6 +12,9 @@ permissions:
   MeowOfLegends.mana:
     description: default permission for mana commands
     default: op
+  MeowOfLegends.health:
+    description: default permission for health commands
+    default: op
   MeowOfLegends.movement:
     description: default permission for movement commands
     default: op
@@ -26,6 +29,11 @@ commands:
     description: Set mana component property by calling class function directly through reflection.
     usage: /<command>
     permission: MeowOfLegends.mana
+    permission-message: You do not have permission!
+  healthcomponent:
+    description: Set health component property by calling class function directly through reflection.
+    usage: /<command>
+    permission: MeowOfLegends.health
     permission-message: You do not have permission!
   top:
     description: Teleport player to the highest block of the current location.

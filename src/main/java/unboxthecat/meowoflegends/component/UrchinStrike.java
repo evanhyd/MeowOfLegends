@@ -26,7 +26,7 @@ public class UrchinStrike extends AbilityComponent implements Listener {
     //serialize these data
     private MOLEntity owner;
     private final TimerComponent cooldown;
-    private ManaComponent mana;
+    private ManaComponent manaView;
 
     public UrchinStrike() {
         super(true);
@@ -51,8 +51,7 @@ public class UrchinStrike extends AbilityComponent implements Listener {
         setUpAbilitySlot(owner);
         this.owner = owner;
         cooldown.onAttach(this.owner);
-        mana = owner.getComponent(ManaComponent.class);
-        assert(mana != null);
+        manaView = owner.getComponent(ManaComponent.class); assert(manaView != null);
         Bukkit.getServer().getPluginManager().registerEvents(this, GameState.getPlugin());
     }
 
@@ -90,7 +89,7 @@ public class UrchinStrike extends AbilityComponent implements Listener {
     }
 
     private boolean hasMana(){
-        return mana.getMana() >= getAbilityManaCost();
+        return manaView.getMana() >= getAbilityManaCost();
     }
 
     private boolean isUsingTrident(Action action) {
@@ -112,7 +111,7 @@ public class UrchinStrike extends AbilityComponent implements Listener {
     }
 
     private void applyCost(){
-        mana.consumeMana(getAbilityManaCost());
+        manaView.consumeMana(getAbilityManaCost());
         cooldown.countDown(getAbilityCoolDownInSeconds());
     }
 
@@ -131,5 +130,10 @@ public class UrchinStrike extends AbilityComponent implements Listener {
     double getAbilityCoolDownInSeconds(){
         int level = (owner.getEntity() instanceof Player player ? player.getLevel() : 0);
         return Math.max(2, 10 - level);
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + cooldown.toString();
     }
 }
