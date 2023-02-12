@@ -138,4 +138,10 @@ public class HealthComponent extends GrowableValueComponent implements Listener 
     public void setHealth(double health) {
         this.value = Math.min(this.maxValue, Math.max(0.0, health));
     }
+
+    @Override
+    public String toString() {
+        return super.toString() +
+                "Health Regeneration Task ID: " + this.healthRegenerationTask.getTaskId() + "\n";
+    }
 }

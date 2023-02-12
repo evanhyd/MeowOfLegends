@@ -78,8 +78,8 @@ public class TimerComponent implements MOLComponent, Listener {
     public String toString(){
         return  "Remaining Time: " + this.getRemainingTimeInSeconds() + " s\n" +
                 "Current Time: " + System.currentTimeMillis() / 1000.0 + " s\n" +
-                "Next Activation Time" + this.activationTime / 1000.0  + " s\n" +
-                "Paused Time" + this.pausedTime / 1000.0 + " s\n" +
-                "Is Paused" + this.isPaused + "\n";
+                "Next Activation Time: " + this.activationTime / 1000.0  + " s\n" +
+                "Paused Time: " + this.pausedTime / 1000.0 + " s\n" +
+                "Is Paused: " + this.isPaused + "\n";
     }
 }

@@ -146,6 +146,6 @@ public class ManaComponent extends GrowableValueComponent implements Listener {
     @Override
     public String toString() {
         return super.toString() +
-               "manaRegenTask(TaskId): " + this.manaRegenerationTask.getTaskId() + "\n";
+               "Mana Regeneration Task ID: " + this.manaRegenerationTask.getTaskId() + "\n";
     }
 }
