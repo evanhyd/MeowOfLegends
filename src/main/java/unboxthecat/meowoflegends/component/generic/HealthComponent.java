@@ -124,6 +124,7 @@ public class HealthComponent extends GrowableValueComponent implements Listener 
 
     public void setMaxHealthGrowRate(double maxHealthGrowRate) {
         this.maxValueGrowRate = maxHealthGrowRate;
+        updateBaseValue();
     }
 
     public void setBaseHealthRegeneration(double baseHealthRegeneration) {
@@ -133,10 +134,13 @@ public class HealthComponent extends GrowableValueComponent implements Listener 
 
     public void setHealthRegenerationGrowRate(double healthRegenerationGrowRate) {
         this.valueRegenerationGrowRate = healthRegenerationGrowRate;
+        updateBaseValue();
     }
 
     public void setHealth(double health) {
-        this.value = Math.min(this.maxValue, Math.max(0.0, health));
+        if (owner.getEntity() instanceof LivingEntity livingEntity) {
+            livingEntity.setHealth(Math.min(this.maxValue, Math.max(0.0, health)));
+        }
     }
 
     @Override
