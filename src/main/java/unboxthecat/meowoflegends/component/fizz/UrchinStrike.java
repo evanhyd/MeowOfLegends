@@ -2,6 +2,7 @@ package unboxthecat.meowoflegends.component.fizz;
 
 import org.bukkit.*;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -19,6 +20,7 @@ import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.function.Predicate;
 
 public class UrchinStrike extends AbilityComponent implements Listener {
 
@@ -71,7 +73,8 @@ public class UrchinStrike extends AbilityComponent implements Listener {
         if(isUsingAbilitySlot(event.getPlayer()) && isUsingTrident(event.getAction()) && !onCoolDown() && hasMana()){
 
             RayTraceResult result = rayTracing();
-            if(result == null || result.getHitEntity() == null){
+            if((result == null || result.getHitEntity() == null) ||
+                    (result.getHitEntity() == owner.getEntity())){
                 owner.getEntity().sendMessage(ChatColor.YELLOW + "must select target for urchin strike");
                 return;
             }
@@ -100,14 +103,37 @@ public class UrchinStrike extends AbilityComponent implements Listener {
         return (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK);
     }
 
+    private double distanceSquared(Vector v1, Vector v2){
+        return  (v1.getX() - v2.getX()) * (v1.getX() - v2.getX()) +
+                (v1.getY() - v2.getY()) * (v1.getY() - v2.getY()) +
+                (v1.getZ() - v2.getZ()) * (v1.getZ() - v2.getZ());
+    }
+
+
     private RayTraceResult rayTracing(){
         Player player = (Player) owner.getEntity();
         Vector direction = player.getEyeLocation().getDirection();
         Location startLocation = player.getEyeLocation().add(direction.multiply(0.5));
 
         double maxDistance = 20;
-        return  player.getWorld().rayTraceEntities(startLocation, direction, maxDistance);
+        Predicate<Entity> ignorePlayer = entity -> {
+            return entity.getUniqueId() != player.getUniqueId();
+        };
 
+        RayTraceResult resultEntity =  player.getWorld().rayTraceEntities(startLocation, direction, maxDistance, ignorePlayer);
+        RayTraceResult resultBlock = player.getWorld().rayTraceBlocks(startLocation, direction, maxDistance);
+
+        if(resultEntity == null || resultEntity.getHitEntity() == null) return null;
+        Vector resultEntityLocation = resultEntity.getHitEntity().getLocation().toVector();
+
+        if(resultBlock == null) return resultEntity;
+        Vector resultBlockLocation = resultBlock.getHitPosition();
+
+        double distanceSquaredStartEntity = distanceSquared(startLocation.toVector(), resultEntityLocation);
+        double distanceSquaredStartBlock = distanceSquared(startLocation.toVector(), resultBlockLocation);
+
+        if(distanceSquaredStartEntity < distanceSquaredStartBlock) return resultEntity;
+        else return null;
     }
 
     private void applyCost(){
@@ -118,8 +144,24 @@ public class UrchinStrike extends AbilityComponent implements Listener {
     private void urchinStrike(Entity target){
         Player player = (Player) owner.getEntity();
         Vector direction = player.getEyeLocation().getDirection();
+
+        //set some effect
         target.setFireTicks(100);
-        player.setVelocity(direction.multiply(10));
+
+        //do damage
+        if(target instanceof LivingEntity){
+            ((LivingEntity) target).damage(20);
+        }
+
+        if(direction.getY() * 4 > 1){
+            direction.setY((direction.getX() + direction.getZ()) / 8);
+            direction.normalize();
+        }
+
+
+        player.setGravity(false);
+        player.setVelocity(direction.multiply(4).clone());
+        player.setGravity(true);
     }
 
     double getAbilityManaCost(){
