@@ -103,13 +103,6 @@ public class UrchinStrike extends AbilityComponent implements Listener {
         return (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK);
     }
 
-    private double distanceSquared(Vector v1, Vector v2){
-        return  (v1.getX() - v2.getX()) * (v1.getX() - v2.getX()) +
-                (v1.getY() - v2.getY()) * (v1.getY() - v2.getY()) +
-                (v1.getZ() - v2.getZ()) * (v1.getZ() - v2.getZ());
-    }
-
-
     private RayTraceResult rayTracing(){
         Player player = (Player) owner.getEntity();
         Vector direction = player.getEyeLocation().getDirection();
@@ -117,20 +110,20 @@ public class UrchinStrike extends AbilityComponent implements Listener {
 
         double maxDistance = 20;
         Predicate<Entity> ignorePlayer = entity -> {
-            return entity.getUniqueId() != player.getUniqueId();
+            return entity instanceof LivingEntity && entity != player;
         };
 
         RayTraceResult resultEntity =  player.getWorld().rayTraceEntities(startLocation, direction, maxDistance, ignorePlayer);
         RayTraceResult resultBlock = player.getWorld().rayTraceBlocks(startLocation, direction, maxDistance);
 
         if(resultEntity == null || resultEntity.getHitEntity() == null) return null;
-        Vector resultEntityLocation = resultEntity.getHitEntity().getLocation().toVector();
+        Location resultEntityLocation = resultEntity.getHitEntity().getLocation();
 
         if(resultBlock == null) return resultEntity;
         Vector resultBlockLocation = resultBlock.getHitPosition();
 
-        double distanceSquaredStartEntity = distanceSquared(startLocation.toVector(), resultEntityLocation);
-        double distanceSquaredStartBlock = distanceSquared(startLocation.toVector(), resultBlockLocation);
+        double distanceSquaredStartEntity = startLocation.distanceSquared(resultEntityLocation);
+        double distanceSquaredStartBlock = startLocation.toVector().distanceSquared(resultBlockLocation);
 
         if(distanceSquaredStartEntity < distanceSquaredStartBlock) return resultEntity;
         else return null;
