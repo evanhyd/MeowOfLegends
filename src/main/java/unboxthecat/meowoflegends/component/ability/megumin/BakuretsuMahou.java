@@ -1,7 +1,9 @@
-package unboxthecat.meowoflegends.component.megumin;
+package unboxthecat.meowoflegends.component.ability.megumin;
 
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -72,18 +74,18 @@ public class BakuretsuMahou extends AbilityComponent implements Listener {
         }
     }
 
-    private boolean isOwner(Player player) {
-        return player.getUniqueId().equals(owner.getEntity().getUniqueId());
+    private boolean isOwner(Entity user) {
+        return user == owner.getEntity();
     }
 
     private boolean isUsingBlazeRod(Action action) {
-        return ((Player)owner.getEntity()).getInventory().getItemInMainHand().getType() == Material.BLAZE_ROD &&
+        return ((HumanEntity)owner.getEntity()).getInventory().getItemInMainHand().getType() == Material.BLAZE_ROD &&
                (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK);
     }
 
     private boolean isLookingAtSolidBlock() {
         Set<Material> ignoredBlockType = Set.of(Material.AIR, Material.CAVE_AIR, Material.VOID_AIR, Material.WATER, Material.LAVA);
-        return ((Player)owner.getEntity()).getTargetBlock(ignoredBlockType, getAbilityReach()).getType().isSolid();
+        return ((HumanEntity)owner.getEntity()).getTargetBlock(ignoredBlockType, getAbilityReach()).getType().isSolid();
     }
 
     private boolean isManaSufficient() {
@@ -103,7 +105,7 @@ public class BakuretsuMahou extends AbilityComponent implements Listener {
 
         //get explosion center
         Set<Material> ignoredBlockType = Set.of(Material.AIR, Material.CAVE_AIR, Material.VOID_AIR, Material.WATER, Material.LAVA);
-        Block explosionBlock = ((Player)owner.getEntity()).getTargetBlock(ignoredBlockType, getAbilityReach());
+        Block explosionBlock = ((LivingEntity)owner.getEntity()).getTargetBlock(ignoredBlockType, getAbilityReach());
         World world = explosionBlock.getWorld();
         Location explosionOrigin = explosionBlock.getLocation();
 
@@ -149,7 +151,6 @@ public class BakuretsuMahou extends AbilityComponent implements Listener {
                 final int endingTick = GameState.secondToTick(EXPLOSION_CHANNELING_IN_SECONDS) - spawnDelayInTicks;
                 @Override
                 public void run() {
-                    //spawn ring particle
                     for (double radian = 0.0; radian <= 2 * Math.PI; radian += 0.05) {
                         double x = ringRadius * Math.cos(radian) + explosionOrigin.getX();
                         double z = ringRadius * Math.sin(radian) + explosionOrigin.getZ();

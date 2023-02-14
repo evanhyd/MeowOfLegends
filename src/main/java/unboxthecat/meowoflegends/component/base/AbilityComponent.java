@@ -3,7 +3,6 @@ package unboxthecat.meowoflegends.component.base;
 import org.bukkit.entity.Player;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 
 public abstract class AbilityComponent implements MOLComponent {
