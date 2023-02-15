@@ -3,10 +3,7 @@ package unboxthecat.meowoflegends.component.ability.fizz;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.TropicalFish;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
@@ -19,6 +16,7 @@ import unboxthecat.meowoflegends.component.base.AbilityComponent;
 import unboxthecat.meowoflegends.component.generic.ManaComponent;
 import unboxthecat.meowoflegends.component.generic.TimerComponent;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
+import unboxthecat.meowoflegends.tag.ability.fizz.SeaStoneTridentTag;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -78,7 +76,7 @@ public class ChumTheWater extends AbilityComponent implements Listener {
         Player player = (Player) owner.getEntity();
 
         //not using trident
-        if(player.getInventory().getItemInMainHand().getType() != Material.TRIDENT) return false;
+        if(player.getInventory().getItemInMainHand().getType() != Material.DIAMOND_SWORD) return false;
         return (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK);
     }
     private void applyCost(){
@@ -91,6 +89,7 @@ public class ChumTheWater extends AbilityComponent implements Listener {
     private void chumTheWater(){
         Player player = (Player) owner.getEntity();
 
+        /*
         Vector direction = player.getEyeLocation().getDirection();
         Location startLocation = player.getEyeLocation().add(direction.multiply(0.5));
 
@@ -98,17 +97,30 @@ public class ChumTheWater extends AbilityComponent implements Listener {
         fish.setVelocity(direction.multiply(10));
 
         Location endLocation = fish.getLocation();
-        //now make something appear at endLocation
+        */
 
+        if(!(owner.getEntity() instanceof LivingEntity)){
+            return;
+        }
 
-        //how to make fish go foward
+        Material weaponUsed = ((HumanEntity) owner.getEntity()).getInventory().getItemInMainHand().getType();
 
+        ((HumanEntity) owner.getEntity()).sendMessage("weapon used is not null and is " + weaponUsed.toString());
+
+        int refreshCooldown = 0;
+        ((HumanEntity) owner.getEntity()).setCooldown(weaponUsed, refreshCooldown);
     }
     @EventHandler
     private void trigger(PlayerInteractEvent event) {
+        if(event.getPlayer() != owner.getEntity()){
+            return;
+        }
 
+        if(isUsingAbilitySlot(event.getPlayer()) && isUsingTrident(event.getAction()) && !onCoolDown() && hasMana()){
 
-        Player player = (Player) owner.getEntity();
+            applyCost();
+            chumTheWater();
+        }
     }
 
 

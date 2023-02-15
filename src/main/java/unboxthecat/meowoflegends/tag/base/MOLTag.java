@@ -1,4 +1,4 @@
-package unboxthecat.meowoflegends.tag;
+package unboxthecat.meowoflegends.tag.base;
 
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.jetbrains.annotations.NotNull;
