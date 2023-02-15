@@ -103,7 +103,7 @@ public class UrchinStrike extends AbilityComponent implements Listener {
         return (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK);
     }
 
-    private double distanceSquared(Vector v1, Vector v2){
+    private double distanceSquared(Vector v1, Vector v2) {
         return  (v1.getX() - v2.getX()) * (v1.getX() - v2.getX()) +
                 (v1.getY() - v2.getY()) * (v1.getY() - v2.getY()) +
                 (v1.getZ() - v2.getZ()) * (v1.getZ() - v2.getZ());

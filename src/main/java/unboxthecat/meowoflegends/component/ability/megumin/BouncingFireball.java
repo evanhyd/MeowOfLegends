@@ -51,7 +51,7 @@ public class BouncingFireball extends AbilityComponent implements Listener {
         setUpAbilitySlot(owner);
         this.owner = owner;
         this.cooldown.onAttach(owner);
-        this.manaView = this.owner.getComponent(ManaComponent.class); assert manaView != null;
+        this.manaView = Objects.requireNonNull(this.owner.getComponent(ManaComponent.class));;
         Bukkit.getServer().getPluginManager().registerEvents(this, GameState.getPlugin());
     }
 
@@ -116,15 +116,20 @@ public class BouncingFireball extends AbilityComponent implements Listener {
                 int bounce = fireballs.get(fireball);
                 fireballs.remove(fireball);
 
-                if (event.getHitBlock() != null && bounce < getAbilityMaxBounce()) {
-                    Vector incoming = event.getEntity().getVelocity();
-                    Vector normal = event.getHitBlockFace().getDirection();
-                    Vector outgoing = incoming.add(normal.multiply(-2.0 * incoming.dot(normal)));
+                if (event.getHitBlock() != null) {
+                    if (bounce < getAbilityMaxBounce()) {
+                        Vector incoming = event.getEntity().getVelocity();
+                        Vector normal = event.getHitBlockFace().getDirection();
+                        Vector outgoing = incoming.add(normal.multiply(-2.0 * incoming.dot(normal)));
 
-                    fireball = (Fireball) owner.getEntity().getWorld().spawnEntity(fireball.getLocation(), EntityType.FIREBALL);
-                    fireball.setYield(0.0f);
-                    fireball.setDirection(outgoing);
-                    fireballs.put(fireball, bounce + 1);
+                        fireball = (Fireball) owner.getEntity().getWorld().spawnEntity(fireball.getLocation(), EntityType.FIREBALL);
+                        fireball.setYield(0.0f);
+                        fireball.setDirection(outgoing);
+                        fireballs.put(fireball, bounce + 1);
+                    } else {
+                        fireball.setYield(getAbilityExplosionPower());
+                        fireball.setIsIncendiary(true);
+                    }
                 } else if (event.getHitEntity() != null) {
                     fireball.setYield(getAbilityExplosionPower());
                     fireball.setIsIncendiary(true);
@@ -142,11 +147,11 @@ public class BouncingFireball extends AbilityComponent implements Listener {
     }
 
     private int getAbilityMaxBounce() {
-        return 3;
+        return 2;
     }
 
     private float getAbilityExplosionPower() {
-        return 4.0f;
+        return 5.0f;
     }
 
     @Override

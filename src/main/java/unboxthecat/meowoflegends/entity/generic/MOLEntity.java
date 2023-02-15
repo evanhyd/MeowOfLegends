@@ -12,16 +12,16 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class MOLEntity implements ConfigurationSerializable {
-    private Entity entity;
-    private final Map<String, MOLComponent> components;
-    private final Map<String, MOLTag> tags;
+public abstract class MOLEntity implements ConfigurationSerializable {
+    protected Entity entity;
+    protected final Map<String, MOLComponent> components;
+    protected final Map<String, MOLTag> tags;
 
     /**
      * Construct a MOLEntity given by an Entity instance.
      * @param entity Entity instance.
      */
-    public MOLEntity(Entity entity) {
+    protected MOLEntity(Entity entity) {
         this.entity = entity;
         components = new TreeMap<>();
         tags = new TreeMap<>();
@@ -31,7 +31,7 @@ public class MOLEntity implements ConfigurationSerializable {
      * Construct a MOLEntity given by the serialized data.
      * @param data serialized data.
      */
-    public MOLEntity(Map<String, Object> data) {
+    protected MOLEntity(Map<String, Object> data) {
         components = (Map<String, MOLComponent>) data.get("components");
         tags = (Map<String, MOLTag>) data.get("tags");
     }
@@ -152,23 +152,23 @@ public class MOLEntity implements ConfigurationSerializable {
     }
 
     /**
-     * Set the entity that controls the MOLEntity.
-     * construct() should only be called when loading MOLEntity from the config file,
-     * since the internal entity may point to an invalid address.
-     * @param entity the Entity.
+     * Activate all character specific components.
+     * Called after loading from a config file.
+     * @param entity the owner Entity.
      */
-    public void construct(Entity entity) {
-        this.entity = entity;
-        components.forEach((name, component) -> component.onAttach(this));
-    }
+    abstract public void activate(Entity entity);
 
     /**
-     * Remove all the components.
-     * destroy() should only be called when the MOLEntity is no longer needed.
+     * Deactivate all character specific components.
+     * Called before player disconnecting from the server.
      */
-    public void destroy() {
-        components.forEach((name, component) -> component.onRemove(this));
-    }
+    abstract public void deactivate();
+
+    /**
+     * Remove character specific components.
+     * Called before removing the character.
+     */
+    abstract public void destroy();
 
     @Override
     public String toString() {

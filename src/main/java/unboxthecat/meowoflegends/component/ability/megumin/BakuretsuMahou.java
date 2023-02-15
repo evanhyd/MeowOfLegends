@@ -49,7 +49,7 @@ public class BakuretsuMahou extends AbilityComponent implements Listener {
         setUpAbilitySlot(owner);
         this.owner = owner;
         this.cooldown.onAttach(this.owner);
-        this.manaView = this.owner.getComponent(ManaComponent.class); assert manaView != null;
+        this.manaView = Objects.requireNonNull(this.owner.getComponent(ManaComponent.class));
         Bukkit.getServer().getPluginManager().registerEvents(this, GameState.getPlugin());
     }
 

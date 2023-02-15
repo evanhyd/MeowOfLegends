@@ -16,6 +16,7 @@ import unboxthecat.meowoflegends.component.base.GrowableValueComponent;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 
 import java.util.Map;
+import java.util.Objects;
 
 public class HealthComponent extends GrowableValueComponent implements Listener {
     public class HealthRegenerationTask implements Runnable {
@@ -44,8 +45,7 @@ public class HealthComponent extends GrowableValueComponent implements Listener 
     @Override
     public void onAttach(MOLEntity owner) {
         this.owner = owner;
-        this.maxHealthInstance = ((LivingEntity)owner.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH);
-        assert this.maxHealthInstance != null;
+        this.maxHealthInstance = Objects.requireNonNull(((LivingEntity) owner).getAttribute(Attribute.GENERIC_MAX_HEALTH));
         this.healthRegenerationTask = Bukkit.getScheduler().runTaskTimer(GameState.getPlugin(), new HealthRegenerationTask(), 0, GameState.secondToTick(1.0));
         Bukkit.getServer().getPluginManager().registerEvents(this, GameState.getPlugin());
         updateBaseValue();

@@ -2,51 +2,50 @@ package unboxthecat.meowoflegends.handler;
 
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import unboxthecat.meowoflegends.GameState;
-import unboxthecat.meowoflegends.component.ability.megumin.BakuretsuMahou;
-import unboxthecat.meowoflegends.component.ability.fizz.UrchinStrike;
-import unboxthecat.meowoflegends.component.generic.HealthComponent;
-import unboxthecat.meowoflegends.component.generic.ManaComponent;
-import unboxthecat.meowoflegends.component.ability.megumin.BouncingFireball;
+import unboxthecat.meowoflegends.entity.character.Megumin;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
+
+import java.util.Objects;
+import java.util.UUID;
 
 public class MOLPlayerLoginHandler implements Listener {
 
     @EventHandler
     public void loadMOLPlayerData(PlayerJoinEvent event) {
+        Player player = event.getPlayer();
+        UUID uuid = player.getUniqueId();
 
         MOLEntity molEntity = null;
-        if(event.getPlayer().hasPlayedBefore()) {
-            String uuid = event.getPlayer().getUniqueId().toString();
-            molEntity = GameState.getConfig().getSerializable(uuid, MOLEntity.class);
-            assert(molEntity != null);
-            molEntity.construct(event.getPlayer());
+        if(player.hasPlayedBefore()) {
+            molEntity = Objects.requireNonNull(GameState.getConfig().getSerializable(uuid.toString(), MOLEntity.class));
+            molEntity.activate(player);
         } else {
-            molEntity = new MOLEntity(event.getPlayer());
-            molEntity.attachComponent(new ManaComponent(100.0, 5.0, 1.0, 0.1));
-            molEntity.attachComponent(new HealthComponent(5.0, 0.5, 0.5, 0.0));
-            molEntity.attachComponent(new BakuretsuMahou());
-            molEntity.attachComponent(new BouncingFireball());
-            molEntity.attachComponent(new UrchinStrike());
+            molEntity = new Megumin(player);
         }
-        GameState.getPlayers().put(event.getPlayer().getUniqueId(), molEntity);
+
         event.getPlayer().setGameMode(GameMode.CREATIVE);
         event.getPlayer().getInventory().addItem(new ItemStack(Material.BLAZE_ROD));
+
+        GameState.getPlayers().put(uuid, molEntity);
     }
 
     @EventHandler
     public void saveMOLPlayerData(PlayerQuitEvent event) {
-        MOLEntity molEntity = GameState.getPlayers().get(event.getPlayer().getUniqueId());
+        Player player = event.getPlayer();
+        UUID uuid = player.getUniqueId();
+        MOLEntity molEntity = GameState.getPlayers().get(uuid);
 
-        GameState.getPlugin().getConfig().set(event.getPlayer().getUniqueId().toString(), molEntity);
+        GameState.getPlugin().getConfig().set(uuid.toString(), molEntity);
         GameState.getPlugin().saveConfig();
 
-        molEntity.destroy();
-        GameState.getPlayers().remove(event.getPlayer().getUniqueId());
+        molEntity.deactivate();
+        GameState.getPlayers().remove(uuid);
     }
 }
