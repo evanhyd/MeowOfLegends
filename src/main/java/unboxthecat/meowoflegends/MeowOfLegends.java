@@ -5,6 +5,7 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.plugin.java.JavaPlugin;
 import unboxthecat.meowoflegends.command.*;
+import unboxthecat.meowoflegends.component.ability.fizz.SeaStoneTrident;
 import unboxthecat.meowoflegends.component.ability.megumin.BakuretsuMahou;
 import unboxthecat.meowoflegends.component.ability.fizz.UrchinStrike;
 import unboxthecat.meowoflegends.component.base.AbilityComponent;
@@ -17,7 +18,8 @@ import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 import unboxthecat.meowoflegends.handler.LoginMessageHandler;
 import unboxthecat.meowoflegends.handler.MOLPlayerLoginHandler;
 import unboxthecat.meowoflegends.handler.PlayerDeathMessageHandler;
-import unboxthecat.meowoflegends.tag.MOLTag;
+import unboxthecat.meowoflegends.tag.ability.fizz.SeaStoneTridentTag;
+import unboxthecat.meowoflegends.tag.base.MOLTag;
 
 public final class MeowOfLegends extends JavaPlugin {
 
@@ -36,6 +38,9 @@ public final class MeowOfLegends extends JavaPlugin {
         ConfigurationSerialization.registerClass(BakuretsuMahou.class);
         ConfigurationSerialization.registerClass(BouncingFireball.class);
         ConfigurationSerialization.registerClass(UrchinStrike.class);
+        ConfigurationSerialization.registerClass(SeaStoneTrident.class);
+
+        ConfigurationSerialization.registerClass(SeaStoneTridentTag.class);
 
         getServer().getPluginManager().registerEvents(new MOLPlayerLoginHandler(), this);
         getServer().getPluginManager().registerEvents(new LoginMessageHandler(), this);

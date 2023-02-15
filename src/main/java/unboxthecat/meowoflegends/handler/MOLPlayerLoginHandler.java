@@ -8,6 +8,8 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import unboxthecat.meowoflegends.GameState;
+import unboxthecat.meowoflegends.component.ability.fizz.ChumTheWater;
+import unboxthecat.meowoflegends.component.ability.fizz.SeaStoneTrident;
 import unboxthecat.meowoflegends.component.ability.megumin.BakuretsuMahou;
 import unboxthecat.meowoflegends.component.ability.fizz.UrchinStrike;
 import unboxthecat.meowoflegends.component.generic.HealthComponent;
@@ -33,6 +35,8 @@ public class MOLPlayerLoginHandler implements Listener {
             molEntity.attachComponent(new BakuretsuMahou());
             molEntity.attachComponent(new BouncingFireball());
             molEntity.attachComponent(new UrchinStrike());
+            molEntity.attachComponent(new SeaStoneTrident());
+
         }
         GameState.getPlayers().put(event.getPlayer().getUniqueId(), molEntity);
         event.getPlayer().setGameMode(GameMode.CREATIVE);

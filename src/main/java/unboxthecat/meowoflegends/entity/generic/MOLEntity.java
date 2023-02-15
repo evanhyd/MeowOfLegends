@@ -6,7 +6,7 @@ import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import unboxthecat.meowoflegends.component.base.MOLComponent;
-import unboxthecat.meowoflegends.tag.MOLTag;
+import unboxthecat.meowoflegends.tag.base.MOLTag;
 
 import java.util.Collection;
 import java.util.Map;
