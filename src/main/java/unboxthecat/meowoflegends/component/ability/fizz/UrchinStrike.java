@@ -20,6 +20,7 @@ import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 import unboxthecat.meowoflegends.tag.ability.fizz.SeaStoneTridentTag;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
 import java.util.function.Predicate;
 
@@ -55,7 +56,7 @@ public class UrchinStrike extends AbilityComponent implements Listener {
         setUpAbilitySlot(owner);
         this.owner = owner;
         cooldown.onAttach(this.owner);
-        manaView = owner.getComponent(ManaComponent.class); assert(manaView != null);
+        manaView = Objects.requireNonNull(owner.getComponent(ManaComponent.class));
         Bukkit.getServer().getPluginManager().registerEvents(this, GameState.getPlugin());
     }
 
@@ -111,9 +112,7 @@ public class UrchinStrike extends AbilityComponent implements Listener {
         Location startLocation = player.getEyeLocation().add(direction.multiply(0.5));
 
         double maxDistance = 20;
-        Predicate<Entity> ignorePlayer = entity -> {
-            return entity instanceof LivingEntity && entity != player;
-        };
+        Predicate<Entity> ignorePlayer = entity -> entity instanceof LivingEntity && entity != player;
 
         RayTraceResult resultEntity =  player.getWorld().rayTraceEntities(startLocation, direction, maxDistance, ignorePlayer);
         RayTraceResult resultBlock = player.getWorld().rayTraceBlocks(startLocation, direction, maxDistance);
