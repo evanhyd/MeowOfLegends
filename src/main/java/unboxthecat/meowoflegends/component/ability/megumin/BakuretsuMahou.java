@@ -18,7 +18,7 @@ import unboxthecat.meowoflegends.component.base.AbilityComponent;
 import unboxthecat.meowoflegends.component.generic.TimerComponent;
 import unboxthecat.meowoflegends.component.generic.ManaComponent;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
-import unboxthecat.meowoflegends.helper.Geometric;
+import unboxthecat.meowoflegends.utility.Geometric;
 
 import java.util.*;
 
@@ -122,7 +122,7 @@ public class BakuretsuMahou extends AbilityComponent implements Listener {
 
         //create magma block base
         final double magmaChannelingInSeconds = EXPLOSION_CHANNELING_IN_SECONDS / magmaBlocks.size();
-        final int magmaCooldownInTicks = GameState.secondToTick(EXPLOSION_CHANNELING_IN_SECONDS);
+        final long magmaCooldownInTicks = GameState.secondToTick(EXPLOSION_CHANNELING_IN_SECONDS);
         double magmaDelayInSeconds = 0.0;
         for (Block baseBlock : magmaBlocks) {
 
@@ -145,10 +145,10 @@ public class BakuretsuMahou extends AbilityComponent implements Listener {
             double ringRadius = new Random().nextDouble(getAbilityExplosionRadius() * 0.8, getAbilityExplosionRadius() * 1.2);
             double y = explosionOrigin.getY() + getAbilityExplosionHeight() / EXPLOSION_RING_COUNT * ring;
 
-            int spawnDelayInTicks = GameState.secondToTick(ringChannelingInSeconds * ring);
+            long spawnDelayInTicks = GameState.secondToTick(ringChannelingInSeconds * ring);
             BukkitRunnable spawningRing = new BukkitRunnable() {
-                int currentTick = 0;
-                final int endingTick = GameState.secondToTick(EXPLOSION_CHANNELING_IN_SECONDS) - spawnDelayInTicks;
+                long currentTick = 0;
+                final long endingTick = GameState.secondToTick(EXPLOSION_CHANNELING_IN_SECONDS) - spawnDelayInTicks;
                 @Override
                 public void run() {
                     for (double radian = 0.0; radian <= 2 * Math.PI; radian += 0.05) {
@@ -178,7 +178,7 @@ public class BakuretsuMahou extends AbilityComponent implements Listener {
             //apply BakuretsuMahou effect to nearby living entities
             world.getNearbyEntities(explosionOrigin, getAbilityExplosionRadius(), getAbilityExplosionHeight(), getAbilityExplosionRadius()).stream()
                     .filter(entity -> entity instanceof LivingEntity)
-                    .forEach(entity -> entity.setFireTicks(entity.getFireTicks() + getAbilityFireTick()));
+                    .forEach(entity -> entity.setFireTicks((int) (entity.getFireTicks() + getAbilityFireTick())));
 
             //create explosion
             world.createExplosion(explosionOrigin, getAbilityExplosionPower(), true, true, owner.getEntity());
@@ -207,8 +207,8 @@ public class BakuretsuMahou extends AbilityComponent implements Listener {
         return manaView.getMaxMana() * MANA_PERCENT_COST;
     }
 
-    public int getAbilityFireTick() {
-        final int EXPLOSION_FIRE_TICK = GameState.secondToTick(5.0);
+    public long getAbilityFireTick() {
+        final long EXPLOSION_FIRE_TICK = GameState.secondToTick(5.0);
         return EXPLOSION_FIRE_TICK;
     }
 

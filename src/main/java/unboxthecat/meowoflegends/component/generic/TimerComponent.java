@@ -1,10 +1,7 @@
 package unboxthecat.meowoflegends.component.generic;
 
-import org.bukkit.Bukkit;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import unboxthecat.meowoflegends.GameState;
 import unboxthecat.meowoflegends.component.base.MOLComponent;
@@ -13,73 +10,76 @@ import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class TimerComponent implements MOLComponent, Listener {
+public class TimerComponent implements MOLComponent {
+    public interface TimerCallback {
+        void run();
+    }
+
     private MOLEntity owner;
-    private long activationTime;
-    private long pausedTime;
-    private boolean isPaused;
+    private long remainingTicks;
+    private BukkitTask task;
 
     public TimerComponent() {
-        this.activationTime = System.currentTimeMillis();
-        this.pausedTime = System.currentTimeMillis();
-        this.isPaused = false;
+        this.remainingTicks = 0;
+        this.task = null;
     }
 
     public TimerComponent(Map<String, Object> data) {
-        this.activationTime = Long.parseLong(data.get("nextActivationTime").toString());
-        this.pausedTime = Long.parseLong(data.get("pausedTime").toString());
-        this.isPaused = Boolean.parseBoolean(data.get("isPaused").toString());
+        this.remainingTicks = Long.parseLong(data.get("remainingTicks").toString());
+        this.task = null;
     }
 
     @Override
     public @NotNull Map<String, Object> serialize() {
         Map<String, Object> data = new TreeMap<>();
-        data.put("nextActivationTime", activationTime);
-        data.put("pausedTime", pausedTime);
-        data.put("isPaused", isPaused);
+        data.put("remainingTicks", remainingTicks);
         return data;
     }
 
     @Override
     public void onAttach(MOLEntity owner) {
         this.owner = owner;
-//        if (isPaused) {
-//            activationTime += System.currentTimeMillis() - pausedTime;
-//            isPaused = false;
-//        }
-//        Bukkit.getServer().getPluginManager().registerEvents(this, GameState.getPlugin());
     }
 
     @Override
     public void onRemove(MOLEntity owner) {
-//        HandlerList.unregisterAll(this);
         this.owner = null;
-    }
-
-    @EventHandler
-    public void onPlayerQuit(PlayerQuitEvent event) {
-        if (event.getPlayer() == owner.getEntity()) {
-            pausedTime = System.currentTimeMillis();
-            isPaused = true;
+        if (task != null) {
+            task.cancel();
+            task = null;
         }
     }
 
     public void countDown(double seconds) {
-        activationTime = System.currentTimeMillis() + (long)(seconds * 1000L);
+        countDown(seconds, ()->{});
+    }
+    public void countDown(double seconds, TimerCallback callback) {
+        if (task != null) {
+            task.cancel();
+        }
+
+        remainingTicks = GameState.secondToTick(seconds);
+        this.task = new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (remainingTicks <= 0) {
+                    cancel();
+                    task = null;
+                    callback.run();
+                }
+                --remainingTicks;
+            }
+        }.runTaskTimerAsynchronously(GameState.getPlugin(), 0, 1L);
     }
     public boolean isReady() {
-        return activationTime <= System.currentTimeMillis();
+        return task == null;
     }
-    private double getRemainingTimeInSeconds() {
-        return Math.max(0L, activationTime - System.currentTimeMillis()) / 1000.0;
+    private double getRemainingTime() {
+        return GameState.tickToSecond(remainingTicks);
     }
 
     @Override
     public String toString(){
-        return  "Remaining Time: " + this.getRemainingTimeInSeconds() + " s\n" +
-                "Current Time: " + System.currentTimeMillis() / 1000.0 + " s\n" +
-                "Next Activation Time: " + this.activationTime / 1000.0  + " s\n" +
-                "Paused Time: " + this.pausedTime / 1000.0 + " s\n" +
-                "Is Paused: " + this.isPaused + "\n";
+        return  "Remaining Time: " + this.getRemainingTime() + " s\n";
     }
 }

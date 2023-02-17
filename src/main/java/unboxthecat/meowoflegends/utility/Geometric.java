@@ -1,4 +1,4 @@
-package unboxthecat.meowoflegends.helper;
+package unboxthecat.meowoflegends.utility;
 
 import org.bukkit.Location;
 import org.bukkit.World;
