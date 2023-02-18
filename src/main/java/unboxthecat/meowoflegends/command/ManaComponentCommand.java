@@ -12,10 +12,10 @@ import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import static unboxthecat.meowoflegends.GameState.getPlayers;
+import static unboxthecat.meowoflegends.utility.GameState.getPlayers;
 
 
-public class CommandManaComponent implements CommandExecutor{
+public class ManaComponentCommand implements CommandExecutor{
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args){

@@ -7,16 +7,15 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import unboxthecat.meowoflegends.component.generic.HealthComponent;
-import unboxthecat.meowoflegends.component.generic.ManaComponent;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import static unboxthecat.meowoflegends.GameState.getPlayers;
+import static unboxthecat.meowoflegends.utility.GameState.getPlayers;
 
 
-public class CommandHealthComponent implements CommandExecutor{
+public class HealthComponentCommand implements CommandExecutor{
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args){

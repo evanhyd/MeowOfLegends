@@ -8,7 +8,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
-import unboxthecat.meowoflegends.GameState;
+import unboxthecat.meowoflegends.utility.GameState;
 import unboxthecat.meowoflegends.entity.character.Megumin;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 

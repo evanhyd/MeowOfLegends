@@ -13,7 +13,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
-import unboxthecat.meowoflegends.GameState;
+import unboxthecat.meowoflegends.utility.GameState;
 import unboxthecat.meowoflegends.component.base.AbilityComponent;
 import unboxthecat.meowoflegends.component.generic.TimerComponent;
 import unboxthecat.meowoflegends.component.generic.ManaComponent;
@@ -45,16 +45,22 @@ public class BakuretsuMahou extends AbilityComponent implements Listener {
     }
 
     @Override
-    public void onAttach(MOLEntity owner) {
+    public void onAttach(MOLEntity owner, Object... objects) {
         setUpAbilitySlot(owner);
         this.owner = owner;
-        this.cooldown.onAttach(this.owner);
+
+        TimerComponent.TimerCallback callback = () -> {
+            if (owner.getEntity() instanceof Player player) {
+                player.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
+            }
+        };
+        this.cooldown.onAttach(this.owner, callback);
         this.manaView = Objects.requireNonNull(this.owner.getComponent(ManaComponent.class));
         Bukkit.getServer().getPluginManager().registerEvents(this, GameState.getPlugin());
     }
 
     @Override
-    public void onRemove(MOLEntity owner) {
+    public void onRemove(MOLEntity owner, Object... objects) {
         HandlerList.unregisterAll(this);
         this.cooldown.onRemove(this.owner);
         this.owner = null;
@@ -167,7 +173,6 @@ public class BakuretsuMahou extends AbilityComponent implements Listener {
             };
             spawningRing.runTaskTimer(GameState.getPlugin(), spawnDelayInTicks, 5L);
         }
-
 
         //create explosion
         Bukkit.getScheduler().runTaskLater(GameState.getPlugin(), () -> {

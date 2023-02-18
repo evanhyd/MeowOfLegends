@@ -8,7 +8,7 @@ website: https://github.com/evanhyd/MeowOfLegends
 permissions:
   MeowOfLegends.debug:
     description: default permission for debug commands
-    default: true
+    default: op
   MeowOfLegends.mana:
     description: default permission for mana commands
     default: op
@@ -20,6 +20,11 @@ permissions:
     default: op
 
 commands:
+  test:
+    description: Custom testing command.
+    usage: /<command>
+    permission: MeowOfLegends.debug
+    permission-message: You do not have permission!
   debug:
     description: Prints out relevant debug information.
     usage: /<command>

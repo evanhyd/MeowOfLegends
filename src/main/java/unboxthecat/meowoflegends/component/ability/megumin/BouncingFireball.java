@@ -2,6 +2,7 @@ package unboxthecat.meowoflegends.component.ability.megumin;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -11,7 +12,7 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
-import unboxthecat.meowoflegends.GameState;
+import unboxthecat.meowoflegends.utility.GameState;
 import unboxthecat.meowoflegends.component.base.AbilityComponent;
 import unboxthecat.meowoflegends.component.generic.ManaComponent;
 import unboxthecat.meowoflegends.component.generic.TimerComponent;
@@ -47,16 +48,22 @@ public class BouncingFireball extends AbilityComponent implements Listener {
     }
 
     @Override
-    public void onAttach(MOLEntity owner) {
+    public void onAttach(MOLEntity owner, Object... objects) {
         setUpAbilitySlot(owner);
         this.owner = owner;
-        this.cooldown.onAttach(owner);
+
+        TimerComponent.TimerCallback callback = () -> {
+            if (owner.getEntity() instanceof Player player) {
+                player.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
+            }
+        };
+        this.cooldown.onAttach(owner, callback);
         this.manaView = Objects.requireNonNull(this.owner.getComponent(ManaComponent.class));;
         Bukkit.getServer().getPluginManager().registerEvents(this, GameState.getPlugin());
     }
 
     @Override
-    public void onRemove(MOLEntity owner) {
+    public void onRemove(MOLEntity owner, Object... objects) {
         HandlerList.unregisterAll(this);
         this.cooldown.onRemove(owner);
         this.owner = null;
@@ -131,8 +138,12 @@ public class BouncingFireball extends AbilityComponent implements Listener {
                         fireball.setIsIncendiary(true);
                     }
                 } else if (event.getHitEntity() != null) {
-                    fireball.setYield(getAbilityExplosionPower());
-                    fireball.setIsIncendiary(true);
+                    if (event.getHitEntity() == owner.getEntity()) {
+                        event.setCancelled(true);
+                    } else {
+                        fireball.setYield(getAbilityExplosionPower());
+                        fireball.setIsIncendiary(true);
+                    }
                 }
             }
         }

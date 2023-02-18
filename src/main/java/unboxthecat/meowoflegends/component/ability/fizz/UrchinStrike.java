@@ -12,7 +12,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
-import unboxthecat.meowoflegends.GameState;
+import unboxthecat.meowoflegends.utility.GameState;
 import unboxthecat.meowoflegends.component.base.AbilityComponent;
 import unboxthecat.meowoflegends.component.generic.TimerComponent;
 import unboxthecat.meowoflegends.component.generic.ManaComponent;
@@ -52,7 +52,7 @@ public class UrchinStrike extends AbilityComponent implements Listener {
     }
 
     @Override
-    public void onAttach(MOLEntity owner) {
+    public void onAttach(MOLEntity owner, Object... objects) {
         setUpAbilitySlot(owner);
         this.owner = owner;
         cooldown.onAttach(this.owner);
@@ -61,7 +61,7 @@ public class UrchinStrike extends AbilityComponent implements Listener {
     }
 
     @Override
-    public void onRemove(MOLEntity owner) {
+    public void onRemove(MOLEntity owner, Object... objects) {
         HandlerList.unregisterAll(this);
         cooldown.onRemove(owner);
         this.owner = null;

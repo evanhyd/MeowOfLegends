@@ -9,20 +9,16 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.jetbrains.annotations.NotNull;
-import unboxthecat.meowoflegends.GameState;
+import unboxthecat.meowoflegends.utility.GameState;
 import unboxthecat.meowoflegends.component.base.AbilityComponent;
 import unboxthecat.meowoflegends.component.generic.TimerComponent;
 import unboxthecat.meowoflegends.component.generic.ManaComponent;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 import unboxthecat.meowoflegends.tag.ability.fizz.SeaStoneTridentTag;
-import unboxthecat.meowoflegends.tag.base.MOLTag;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -54,7 +50,7 @@ public class SeaStoneTrident extends AbilityComponent implements Listener {
     }
 
     @Override
-    public void onAttach(MOLEntity owner) {
+    public void onAttach(MOLEntity owner, Object... objects) {
         setUpAbilitySlot(owner);
         this.owner = owner;
         cooldown.onAttach(this.owner);
@@ -63,7 +59,7 @@ public class SeaStoneTrident extends AbilityComponent implements Listener {
     }
 
     @Override
-    public void onRemove(MOLEntity owner) {
+    public void onRemove(MOLEntity owner, Object... objects) {
         HandlerList.unregisterAll(this);
         cooldown.onRemove(owner);
         this.owner = null;

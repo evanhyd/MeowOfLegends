@@ -1,7 +1,6 @@
 package unboxthecat.meowoflegends.component.ability.fizz;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -9,14 +8,12 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
-import unboxthecat.meowoflegends.GameState;
+import unboxthecat.meowoflegends.utility.GameState;
 import unboxthecat.meowoflegends.component.base.AbilityComponent;
 import unboxthecat.meowoflegends.component.generic.ManaComponent;
 import unboxthecat.meowoflegends.component.generic.TimerComponent;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
-import unboxthecat.meowoflegends.tag.ability.fizz.SeaStoneTridentTag;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -44,14 +41,17 @@ public class ChumTheWater extends AbilityComponent implements Listener {
         manaCost = initialManaCost;
         timerComponent = new TimerComponent();
     }
-    public void onAttach(MOLEntity owner) {
+
+    @Override
+    public void onAttach(MOLEntity owner, Object... objects) {
         setUpAbilitySlot(owner);
         this.owner = owner;
         timerComponent.onAttach(this.owner);
         Bukkit.getServer().getPluginManager().registerEvents(this, GameState.getPlugin());
     }
 
-    public void onRemove(MOLEntity owner) {
+    @Override
+    public void onRemove(MOLEntity owner, Object... objects) {
         HandlerList.unregisterAll(this);
         timerComponent.onRemove(owner);
     }

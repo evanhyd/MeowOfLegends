@@ -11,7 +11,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerLevelChangeEvent;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
-import unboxthecat.meowoflegends.GameState;
+import unboxthecat.meowoflegends.utility.GameState;
 import unboxthecat.meowoflegends.component.base.GrowableValueComponent;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 
@@ -43,16 +43,16 @@ public class HealthComponent extends GrowableValueComponent implements Listener 
     }
 
     @Override
-    public void onAttach(MOLEntity owner) {
+    public void onAttach(MOLEntity owner, Object... objects) {
         this.owner = owner;
-        this.maxHealthInstance = Objects.requireNonNull(((LivingEntity) owner).getAttribute(Attribute.GENERIC_MAX_HEALTH));
+        this.maxHealthInstance = Objects.requireNonNull(((LivingEntity) owner.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH));
         this.healthRegenerationTask = Bukkit.getScheduler().runTaskTimer(GameState.getPlugin(), new HealthRegenerationTask(), 0, GameState.secondToTick(1.0));
         Bukkit.getServer().getPluginManager().registerEvents(this, GameState.getPlugin());
         updateBaseValue();
     }
 
     @Override
-    public void onRemove(MOLEntity owner) {
+    public void onRemove(MOLEntity owner, Object... objects) {
         HandlerList.unregisterAll(this);
         this.healthRegenerationTask.cancel();
         this.maxHealthInstance = null;

@@ -11,7 +11,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerLevelChangeEvent;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
-import unboxthecat.meowoflegends.GameState;
+import unboxthecat.meowoflegends.utility.GameState;
 import unboxthecat.meowoflegends.component.base.GrowableValueComponent;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 
@@ -45,7 +45,7 @@ public class ManaComponent extends GrowableValueComponent implements Listener {
     }
 
     @Override
-    public void onAttach(MOLEntity owner) {
+    public void onAttach(MOLEntity owner, Object... objects) {
         this.owner = owner;
         if (owner.getEntity() instanceof Player player) {
             this.manaBar = Bukkit.getServer().createBossBar("", BarColor.BLUE, BarStyle.SOLID);
@@ -57,7 +57,7 @@ public class ManaComponent extends GrowableValueComponent implements Listener {
     }
 
     @Override
-    public void onRemove(MOLEntity owner) {
+    public void onRemove(MOLEntity owner, Object... objects) {
         HandlerList.unregisterAll(this);
         this.manaRegenerationTask.cancel();
         if (owner.getEntity() instanceof Player player) {

@@ -3,7 +3,7 @@ package unboxthecat.meowoflegends.component.generic;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
-import unboxthecat.meowoflegends.GameState;
+import unboxthecat.meowoflegends.utility.GameState;
 import unboxthecat.meowoflegends.component.base.MOLComponent;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 
@@ -18,6 +18,7 @@ public class TimerComponent implements MOLComponent {
     private MOLEntity owner;
     private long remainingTicks;
     private BukkitTask task;
+    private TimerCallback callback;
 
     public TimerComponent() {
         this.remainingTicks = 0;
@@ -37,27 +38,32 @@ public class TimerComponent implements MOLComponent {
     }
 
     @Override
-    public void onAttach(MOLEntity owner) {
+    public void onAttach(MOLEntity owner, Object... objects) {
         this.owner = owner;
+        if (objects.length > 0) {
+            this.callback = (TimerCallback) objects[0];
+        }
+        if (remainingTicks > 0) {
+            countDown(GameState.tickToSecond(remainingTicks));
+        }
     }
 
     @Override
-    public void onRemove(MOLEntity owner) {
-        this.owner = null;
+    public void onRemove(MOLEntity owner, Object... objects) {
         if (task != null) {
             task.cancel();
             task = null;
         }
+        this.callback = null;
+        this.owner = null;
     }
 
     public void countDown(double seconds) {
-        countDown(seconds, ()->{});
-    }
-    public void countDown(double seconds, TimerCallback callback) {
         if (task != null) {
             task.cancel();
         }
 
+        //callback may access spigot API, hence must be synchronized
         remainingTicks = GameState.secondToTick(seconds);
         this.task = new BukkitRunnable() {
             @Override
@@ -65,15 +71,19 @@ public class TimerComponent implements MOLComponent {
                 if (remainingTicks <= 0) {
                     cancel();
                     task = null;
-                    callback.run();
+                    if (callback != null) {
+                        callback.run();
+                    }
                 }
                 --remainingTicks;
             }
-        }.runTaskTimerAsynchronously(GameState.getPlugin(), 0, 1L);
+        }.runTaskTimer(GameState.getPlugin(), 0, 1L);
     }
+
     public boolean isReady() {
         return task == null;
     }
+
     private double getRemainingTime() {
         return GameState.tickToSecond(remainingTicks);
     }
