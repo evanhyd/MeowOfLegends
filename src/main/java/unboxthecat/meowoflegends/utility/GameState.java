@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.UUID;
 
 public class GameState implements Listener {
-
     private GameState() {};
 
     private static final long SERVER_TICK_RATE = 20; //may need to dynamically capture it in the future

@@ -25,7 +25,7 @@ public class BouncingFireball extends AbilityComponent implements Listener {
     private MOLEntity owner;
     private final TimerComponent cooldown;
     private ManaComponent manaView;
-    private final Map<Fireball, Integer> fireballs;
+    private final Map<Projectile, Integer> fireballs;
 
     public BouncingFireball() {
         super(true);
@@ -109,42 +109,34 @@ public class BouncingFireball extends AbilityComponent implements Listener {
     private void launchFireball() {
         LivingEntity user = (LivingEntity) owner.getEntity();
         Fireball fireball = (Fireball) user.getWorld().spawnEntity(user.getEyeLocation(), EntityType.FIREBALL);
-        fireball.setYield(0.0f);
+        fireball.setYield(getAbilityExplosionPower());
+        fireball.setIsIncendiary(true);
         fireball.setDirection(user.getEyeLocation().getDirection());
         fireballs.put(fireball, 0);
     }
 
     @EventHandler
     public void onFireballHit(ProjectileHitEvent event) {
+        if (fireballs.containsKey(event.getEntity())) {
+            Fireball fireball = (Fireball) event.getEntity();
+            int bounce = fireballs.get(fireball);
+            fireballs.remove(fireball);
 
-        if(event.getHitBlockFace() != null) {
-            if (event.getEntity() instanceof Fireball fireball && fireballs.containsKey(fireball))
-            {
-                int bounce = fireballs.get(fireball);
-                fireballs.remove(fireball);
+            if (event.getHitBlockFace() != null && bounce < getAbilityMaxBounce()) {
+                Vector incoming = event.getEntity().getVelocity();
+                Vector normal = event.getHitBlockFace().getDirection();
+                Vector outgoing = incoming.add(normal.multiply(-2.0 * incoming.dot(normal)));
 
-                if (event.getHitBlock() != null) {
-                    if (bounce < getAbilityMaxBounce()) {
-                        Vector incoming = event.getEntity().getVelocity();
-                        Vector normal = event.getHitBlockFace().getDirection();
-                        Vector outgoing = incoming.add(normal.multiply(-2.0 * incoming.dot(normal)));
+                fireball.setYield(0.0f);
+                fireball.setIsIncendiary(false);
 
-                        fireball = (Fireball) owner.getEntity().getWorld().spawnEntity(fireball.getLocation(), EntityType.FIREBALL);
-                        fireball.setYield(0.0f);
-                        fireball.setDirection(outgoing);
-                        fireballs.put(fireball, bounce + 1);
-                    } else {
-                        fireball.setYield(getAbilityExplosionPower());
-                        fireball.setIsIncendiary(true);
-                    }
-                } else if (event.getHitEntity() != null) {
-                    if (event.getHitEntity() == owner.getEntity()) {
-                        event.setCancelled(true);
-                    } else {
-                        fireball.setYield(getAbilityExplosionPower());
-                        fireball.setIsIncendiary(true);
-                    }
-                }
+                fireball = (Fireball) owner.getEntity().getWorld().spawnEntity(fireball.getLocation(), EntityType.FIREBALL);
+                fireball.setYield(getAbilityExplosionPower());
+                fireball.setIsIncendiary(true);
+                fireball.setDirection(outgoing);
+                fireballs.put(fireball, bounce + 1);
+            } else if (event.getHitEntity() == owner.getEntity()) {
+                event.setCancelled(true);
             }
         }
     }
