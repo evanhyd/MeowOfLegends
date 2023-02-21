@@ -41,10 +41,10 @@ public class Megumin extends MOLEntity {
 
     @Override
     public void deactivate() {
-        Objects.requireNonNull(getComponent(HealthComponent.class)).onRemove(this);
-        Objects.requireNonNull(getComponent(ManaComponent.class)).onRemove(this);
-        Objects.requireNonNull(getComponent(BouncingFireball.class)).onRemove(this);
         Objects.requireNonNull(getComponent(BakuretsuMahou.class)).onRemove(this);
+        Objects.requireNonNull(getComponent(BouncingFireball.class)).onRemove(this);
+        Objects.requireNonNull(getComponent(ManaComponent.class)).onRemove(this);
+        Objects.requireNonNull(getComponent(HealthComponent.class)).onRemove(this);
     }
 
     @Override

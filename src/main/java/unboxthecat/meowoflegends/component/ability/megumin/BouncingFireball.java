@@ -1,6 +1,7 @@
 package unboxthecat.meowoflegends.component.ability.megumin;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.*;
@@ -108,7 +109,8 @@ public class BouncingFireball extends AbilityComponent implements Listener {
 
     private void launchFireball() {
         LivingEntity user = (LivingEntity) owner.getEntity();
-        Fireball fireball = (Fireball) user.getWorld().spawnEntity(user.getEyeLocation(), EntityType.FIREBALL);
+        Location launchingLocation = user.getEyeLocation().add(user.getEyeLocation().getDirection());
+        Fireball fireball = (Fireball) user.getWorld().spawnEntity(launchingLocation, EntityType.FIREBALL);
         fireball.setYield(getAbilityExplosionPower());
         fireball.setIsIncendiary(true);
         fireball.setDirection(user.getEyeLocation().getDirection());
@@ -135,6 +137,7 @@ public class BouncingFireball extends AbilityComponent implements Listener {
                 fireball.setIsIncendiary(true);
                 fireball.setDirection(outgoing);
                 fireballs.put(fireball, bounce + 1);
+
             } else if (event.getHitEntity() == owner.getEntity()) {
                 event.setCancelled(true);
             }
@@ -159,6 +162,6 @@ public class BouncingFireball extends AbilityComponent implements Listener {
 
     @Override
     public String toString() {
-        return super.toString() + cooldown.toString();
+        return super.toString() + cooldown.toString() + "\n" + "Fireball Count: " + fireballs.size() + "\n";
     }
 }

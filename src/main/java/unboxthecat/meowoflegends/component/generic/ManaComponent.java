@@ -59,7 +59,10 @@ public class ManaComponent extends GrowableValueComponent implements Listener {
     @Override
     public void onRemove(MOLEntity owner, Object... objects) {
         HandlerList.unregisterAll(this);
-        this.manaRegenerationTask.cancel();
+        if (this.manaRegenerationTask != null) {
+            this.manaRegenerationTask.cancel();
+            this.manaRegenerationTask = null;
+        }
         if (owner.getEntity() instanceof Player player) {
             this.manaBar.removeAll();
         }

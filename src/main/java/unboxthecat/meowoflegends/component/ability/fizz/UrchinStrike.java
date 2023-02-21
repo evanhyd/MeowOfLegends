@@ -76,10 +76,10 @@ public class UrchinStrike extends AbilityComponent implements Listener {
            isCooldownReady() &&
            hasSufficientMana()) {
 
-            Entity targetEntity = getReachTarget();
-            if (targetEntity != null) {
+            LivingEntity target = (LivingEntity) getReachTarget();
+            if (target != null) {
                 applyAbilityCost();
-                urchinStrike(targetEntity);
+                urchinStrike(target);
             }
         }
 
@@ -122,14 +122,9 @@ public class UrchinStrike extends AbilityComponent implements Listener {
         }
     }
 
-    private void urchinStrike(Entity target) {
-        Player player = (Player) owner.getEntity();
+    private void urchinStrike(LivingEntity target) {
+        HumanEntity player = (HumanEntity) owner.getEntity();
         Vector direction = player.getEyeLocation().getDirection();
-
-        //do damage
-        if(target instanceof LivingEntity){
-            player.damage(20, target);
-        }
 
         if(direction.getY() * 4 > 1){
             direction.setY((direction.getX() + direction.getZ()) / 8);
@@ -142,10 +137,13 @@ public class UrchinStrike extends AbilityComponent implements Listener {
         player.setVelocity(direction.multiply(4).clone());
         player.setGravity(true);
 
+        //do damage
+        target.damage(20.0, player);
+
         //on hit from SeaStoneTrident(fizz w)
         SeaStoneTridentTag tag = owner.getTag(SeaStoneTridentTag.class);
         if(tag != null){
-            player.damage(10, player);
+            target.damage(20.0, player);
             //set some effect
             target.setFireTicks(100);
         }

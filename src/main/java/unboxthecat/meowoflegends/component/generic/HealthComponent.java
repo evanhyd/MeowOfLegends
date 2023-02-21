@@ -54,7 +54,10 @@ public class HealthComponent extends GrowableValueComponent implements Listener 
     @Override
     public void onRemove(MOLEntity owner, Object... objects) {
         HandlerList.unregisterAll(this);
-        this.healthRegenerationTask.cancel();
+        if (this.healthRegenerationTask != null) {
+            this.healthRegenerationTask.cancel();
+            this.healthRegenerationTask = null;
+        }
         this.maxHealthInstance = null;
         this.owner = null;
     }
