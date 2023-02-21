@@ -18,13 +18,14 @@ import unboxthecat.meowoflegends.component.generic.ManaComponent;
 import unboxthecat.meowoflegends.component.generic.TimerComponent;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 
+import java.lang.ref.WeakReference;
 import java.util.*;
 
 public class BouncingFireball extends AbilityComponent implements Listener {
 
     private MOLEntity owner;
     private final TimerComponent cooldown;
-    private ManaComponent manaView;
+    private WeakReference<ManaComponent> manaView;
     private final Map<Projectile, Integer> fireballs;
 
     public BouncingFireball() {
@@ -58,7 +59,7 @@ public class BouncingFireball extends AbilityComponent implements Listener {
             }
         };
         this.cooldown.onAttach(owner, callback);
-        this.manaView = Objects.requireNonNull(this.owner.getComponent(ManaComponent.class));;
+        this.manaView = new WeakReference<>(Objects.requireNonNull(this.owner.getComponent(ManaComponent.class)));
         Bukkit.getServer().getPluginManager().registerEvents(this, GameState.getPlugin());
     }
 
@@ -94,7 +95,7 @@ public class BouncingFireball extends AbilityComponent implements Listener {
     }
 
     private boolean isManaSufficient() {
-        return this.manaView.getMana() >= getAbilityManaCost();
+        return Objects.requireNonNull(this.manaView.get()).getMana() >= getAbilityManaCost();
     }
 
     private boolean isCooldownReady() {
@@ -102,7 +103,7 @@ public class BouncingFireball extends AbilityComponent implements Listener {
     }
 
     private void applyAbilityCost() {
-        this.manaView.consumeMana(getAbilityManaCost());
+        Objects.requireNonNull(this.manaView.get()).consumeMana(getAbilityManaCost());
         this.cooldown.countDown(getAbilityCooldown());
     }
 

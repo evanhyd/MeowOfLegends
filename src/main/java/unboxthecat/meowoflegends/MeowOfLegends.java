@@ -60,15 +60,11 @@ public final class MeowOfLegends extends JavaPlugin {
     }
 
     public void setupCommand() {
-        addCommand("test", new TestCommand());
-        addCommand("debug", new DebugCommand());
-        addCommand("manacomponent", new ManaComponentCommand());
-        addCommand("healthcomponent", new HealthComponentCommand());
-        addCommand("top", new TopCommand());
-    }
-    public void addCommand(String commandName, CommandExecutor executor) {
-        PluginCommand command = Objects.requireNonNull(this.getCommand(commandName));
-        command.setExecutor(executor);
+        Objects.requireNonNull(this.getCommand("test")).setExecutor(new TestCommand());
+        Objects.requireNonNull(this.getCommand("debug")).setExecutor(new DebugCommand());
+        Objects.requireNonNull(this.getCommand("manacomponent")).setExecutor(new ManaComponentCommand());
+        Objects.requireNonNull(this.getCommand("healthcomponent")).setExecutor(new HealthComponentCommand());
+        Objects.requireNonNull(this.getCommand("top")).setExecutor(new TopCommand());
     }
 
     public void setupListener() {

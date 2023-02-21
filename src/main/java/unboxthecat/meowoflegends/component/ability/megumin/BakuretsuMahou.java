@@ -20,12 +20,13 @@ import unboxthecat.meowoflegends.component.generic.ManaComponent;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 import unboxthecat.meowoflegends.utility.Geometric;
 
+import java.lang.ref.WeakReference;
 import java.util.*;
 
 public class BakuretsuMahou extends AbilityComponent implements Listener {
     private MOLEntity owner;
     private final TimerComponent cooldown;
-    private ManaComponent manaView;
+    private WeakReference<ManaComponent> manaView;
 
     public BakuretsuMahou() {
         super(true);
@@ -55,7 +56,7 @@ public class BakuretsuMahou extends AbilityComponent implements Listener {
             }
         };
         this.cooldown.onAttach(this.owner, callback);
-        this.manaView = Objects.requireNonNull(this.owner.getComponent(ManaComponent.class));
+        this.manaView = new WeakReference<>(Objects.requireNonNull(this.owner.getComponent(ManaComponent.class)));
         Bukkit.getServer().getPluginManager().registerEvents(this, GameState.getPlugin());
     }
 
@@ -95,7 +96,7 @@ public class BakuretsuMahou extends AbilityComponent implements Listener {
     }
 
     private boolean isManaSufficient() {
-        return this.manaView.getMana() >= getAbilityManaCost();
+        return Objects.requireNonNull(this.manaView.get()).getMana() >= getAbilityManaCost();
     }
 
     private boolean isCooldownReady() {
@@ -192,7 +193,7 @@ public class BakuretsuMahou extends AbilityComponent implements Listener {
     }
 
     private void applyAbilityCost() {
-        this.manaView.consumeMana(getAbilityManaCost());
+        Objects.requireNonNull(this.manaView.get()).consumeMana(getAbilityManaCost());
         this.cooldown.countDown(getAbilityCooldown());
     }
 
@@ -209,7 +210,7 @@ public class BakuretsuMahou extends AbilityComponent implements Listener {
 
     private double getAbilityManaCost() {
         final double MANA_PERCENT_COST = 0.15;
-        return manaView.getMaxMana() * MANA_PERCENT_COST;
+        return Objects.requireNonNull(manaView.get()).getMaxMana() * MANA_PERCENT_COST;
     }
 
     public long getAbilityFireTick() {

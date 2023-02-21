@@ -16,9 +16,9 @@ public class LoginMessageHandler implements Listener {
             Bukkit.getOnlinePlayers().forEach(player ->
                 player.sendTitle("Welcome",
                     event.getPlayer().getName(),
-                        (int) GameState.secondToTick(1.0),
-                        (int) GameState.secondToTick(5.0),
-                        (int) GameState.secondToTick(1.0))
+                    (int) GameState.secondToTick(1.0),
+                    (int) GameState.secondToTick(5.0),
+                    (int) GameState.secondToTick(1.0))
             );
         }
         event.setJoinMessage(ChatColor.AQUA + event.getPlayer().getName() + ChatColor.GREEN + " hopped on the server!");
