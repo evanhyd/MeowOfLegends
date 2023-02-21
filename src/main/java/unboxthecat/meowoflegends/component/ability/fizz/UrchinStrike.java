@@ -2,6 +2,7 @@ package unboxthecat.meowoflegends.component.ability.fizz;
 
 import org.bukkit.*;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -12,6 +13,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import unboxthecat.meowoflegends.utility.GameState;
 import unboxthecat.meowoflegends.component.base.AbilityComponent;
 import unboxthecat.meowoflegends.component.generic.TimerComponent;
@@ -26,9 +28,6 @@ import java.util.function.Predicate;
 
 //todo: proper damage and mana scaling for abilities
 public class UrchinStrike extends AbilityComponent implements Listener {
-
-
-    //serialize these data
     private MOLEntity owner;
     private final TimerComponent cooldown;
     private ManaComponent manaView;
@@ -55,87 +54,75 @@ public class UrchinStrike extends AbilityComponent implements Listener {
     public void onAttach(MOLEntity owner, Object... objects) {
         setUpAbilitySlot(owner);
         this.owner = owner;
-        cooldown.onAttach(this.owner);
-        manaView = Objects.requireNonNull(owner.getComponent(ManaComponent.class));
+        this.cooldown.onAttach(owner);
+        this.manaView = Objects.requireNonNull(owner.getComponent(ManaComponent.class));
         Bukkit.getServer().getPluginManager().registerEvents(this, GameState.getPlugin());
     }
 
     @Override
     public void onRemove(MOLEntity owner, Object... objects) {
         HandlerList.unregisterAll(this);
-        cooldown.onRemove(owner);
+        this.manaView = null;
+        this.cooldown.onRemove(owner);
         this.owner = null;
     }
 
     @EventHandler
     private void trigger(PlayerInteractEvent event){
-        if(event.getPlayer() != owner.getEntity()){
-            return;
-        }
 
-        if(isUsingAbilitySlot(event.getPlayer()) && isUsingTrident(event.getAction()) && !onCoolDown() && hasMana()){
+        if(isOwner(event.getPlayer()) &&
+           isUsingAbilitySlot(event.getPlayer()) &&
+           isUsingTrident(event.getAction()) &&
+           isCooldownReady() &&
+           hasSufficientMana()) {
 
-            RayTraceResult result = rayTracing();
-            if((result == null || result.getHitEntity() == null) ||
-                    (result.getHitEntity() == owner.getEntity())){
-                owner.getEntity().sendMessage(ChatColor.YELLOW + "must select target for urchin strike");
-                return;
+            Entity targetEntity = getReachTarget();
+            if (targetEntity != null) {
+                applyAbilityCost();
+                urchinStrike(targetEntity);
             }
-
-
-            owner.getEntity().sendMessage(ChatColor.GREEN + "urchin strike hit " + result.getHitEntity().getName());
-            applyCost();
-            urchinStrike(result.getHitEntity());
         }
 
     }
 
-    private boolean onCoolDown(){
-        return !cooldown.isReady();
-    }
-
-    private boolean hasMana(){
-        return manaView.getMana() >= getAbilityManaCost();
+    private boolean isOwner(Entity entity) {
+        return entity == owner.getEntity();
     }
 
     private boolean isUsingTrident(Action action) {
-        Player player = (Player) owner.getEntity();
-
-        //not using trident
-        if(player.getInventory().getItemInMainHand().getType() != Material.TRIDENT) return false;
-        return (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK);
+        return ((HumanEntity)owner.getEntity()).getInventory().getItemInMainHand().getType() == Material.TRIDENT &&
+                (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK);
     }
 
-    private RayTraceResult rayTracing(){
-        Player player = (Player) owner.getEntity();
-        Vector direction = player.getEyeLocation().getDirection();
-        Location startLocation = player.getEyeLocation().add(direction.multiply(0.5));
-
-        double maxDistance = 20;
-        Predicate<Entity> ignorePlayer = entity -> entity instanceof LivingEntity && entity != player;
-
-        RayTraceResult resultEntity =  player.getWorld().rayTraceEntities(startLocation, direction, maxDistance, ignorePlayer);
-        RayTraceResult resultBlock = player.getWorld().rayTraceBlocks(startLocation, direction, maxDistance);
-
-        if(resultEntity == null || resultEntity.getHitEntity() == null) return null;
-        Location resultEntityLocation = resultEntity.getHitEntity().getLocation();
-
-        if(resultBlock == null) return resultEntity;
-        Vector resultBlockLocation = resultBlock.getHitPosition();
-
-        double distanceSquaredStartEntity = startLocation.distanceSquared(resultEntityLocation);
-        double distanceSquaredStartBlock = startLocation.toVector().distanceSquared(resultBlockLocation);
-
-        if(distanceSquaredStartEntity < distanceSquaredStartBlock) return resultEntity;
-        else return null;
+    private boolean isCooldownReady(){
+        return cooldown.isReady();
     }
 
-    private void applyCost(){
-        manaView.consumeMana(getAbilityManaCost());
-        cooldown.countDown(getAbilityCoolDownInSeconds());
+    private boolean hasSufficientMana(){
+        return manaView.getMana() >= getAbilityManaCost();
     }
 
-    private void urchinStrike(Entity target){
+    @Nullable
+    private Entity getReachTarget() {
+        HumanEntity humanEntity = (HumanEntity) owner.getEntity();
+        Vector direction = humanEntity.getEyeLocation().getDirection();
+        Location startLocation = humanEntity.getEyeLocation().add(direction.multiply(0.5));
+
+        double maxDistance = 20.0;
+        Predicate<Entity> ignoreOwner = entity -> entity instanceof LivingEntity && entity != humanEntity;
+
+        RayTraceResult hitTarget = humanEntity.getWorld().rayTrace(
+                startLocation, direction, maxDistance, FluidCollisionMode.NEVER, true, 1.0,  ignoreOwner
+        );
+
+        if (hitTarget == null) {
+            return null;
+        } else {
+            return hitTarget.getHitEntity();
+        }
+    }
+
+    private void urchinStrike(Entity target) {
         Player player = (Player) owner.getEntity();
         Vector direction = player.getEyeLocation().getDirection();
 
@@ -149,7 +136,8 @@ public class UrchinStrike extends AbilityComponent implements Listener {
             direction.normalize();
         }
 
-
+        //this doesn't do anything, since player's gravity if restore back to normal in the next few nano seconds
+        //consider using Bukkit Task Scheduler
         player.setGravity(false);
         player.setVelocity(direction.multiply(4).clone());
         player.setGravity(true);
@@ -162,6 +150,11 @@ public class UrchinStrike extends AbilityComponent implements Listener {
             target.setFireTicks(100);
         }
         owner.removeTag(SeaStoneTridentTag.class);
+    }
+
+    private void applyAbilityCost(){
+        manaView.consumeMana(getAbilityManaCost());
+        cooldown.countDown(getAbilityCoolDownInSeconds());
     }
 
     double getAbilityManaCost(){

@@ -1,6 +1,6 @@
 package unboxthecat.meowoflegends.component.base;
 
-import org.bukkit.entity.Player;
+import org.bukkit.entity.HumanEntity;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 
 import java.util.Arrays;
@@ -38,8 +38,8 @@ public abstract class AbilityComponent implements MOLComponent {
         }
     }
 
-    protected boolean isUsingAbilitySlot(Player player) {
-        return player.getInventory().getHeldItemSlot() == abilitySlot;
+    protected boolean isUsingAbilitySlot(HumanEntity humanEntity) {
+        return humanEntity.getInventory().getHeldItemSlot() == abilitySlot;
     }
 
     @Override

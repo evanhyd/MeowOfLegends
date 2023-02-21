@@ -20,13 +20,12 @@ import unboxthecat.meowoflegends.component.generic.ManaComponent;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 import unboxthecat.meowoflegends.utility.Geometric;
 
-import java.lang.ref.WeakReference;
 import java.util.*;
 
 public class BakuretsuMahou extends AbilityComponent implements Listener {
     private MOLEntity owner;
     private final TimerComponent cooldown;
-    private WeakReference<ManaComponent> manaView;
+    private ManaComponent manaView;
 
     public BakuretsuMahou() {
         super(true);
@@ -49,33 +48,32 @@ public class BakuretsuMahou extends AbilityComponent implements Listener {
     public void onAttach(MOLEntity owner, Object... objects) {
         setUpAbilitySlot(owner);
         this.owner = owner;
-
         TimerComponent.TimerCallback callback = () -> {
             if (owner.getEntity() instanceof Player player) {
                 player.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
             }
         };
-        this.cooldown.onAttach(this.owner, callback);
-        this.manaView = new WeakReference<>(Objects.requireNonNull(this.owner.getComponent(ManaComponent.class)));
+        this.cooldown.onAttach(owner, callback);
+        this.manaView = Objects.requireNonNull(owner.getComponent(ManaComponent.class));
         Bukkit.getServer().getPluginManager().registerEvents(this, GameState.getPlugin());
     }
 
     @Override
     public void onRemove(MOLEntity owner, Object... objects) {
         HandlerList.unregisterAll(this);
-        this.cooldown.onRemove(this.owner);
+        this.manaView = null;
+        this.cooldown.onRemove(owner);
         this.owner = null;
     }
 
     @EventHandler
     public void trigger(PlayerInteractEvent event) {
         if (isOwner(event.getPlayer()) &&
-            isUsingAbilitySlot(event.getPlayer()) &&
-            isUsingBlazeRod(event.getAction()) &&
-            isLookingAtSolidBlock() &&
-            isManaSufficient() &&
-            isCooldownReady()) {
-
+                isUsingAbilitySlot(event.getPlayer()) &&
+                isUsingBlazeRod(event.getAction()) &&
+                isLookingAtSolidBlock() &&
+                isManaSufficient() &&
+                isCooldownReady()) {
             applyAbilityCost();
             explode();
         }
@@ -87,7 +85,7 @@ public class BakuretsuMahou extends AbilityComponent implements Listener {
 
     private boolean isUsingBlazeRod(Action action) {
         return ((HumanEntity)owner.getEntity()).getInventory().getItemInMainHand().getType() == Material.BLAZE_ROD &&
-               (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK);
+                (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK);
     }
 
     private boolean isLookingAtSolidBlock() {
@@ -96,7 +94,7 @@ public class BakuretsuMahou extends AbilityComponent implements Listener {
     }
 
     private boolean isManaSufficient() {
-        return Objects.requireNonNull(this.manaView.get()).getMana() >= getAbilityManaCost();
+        return this.manaView.getMana() >= getAbilityManaCost();
     }
 
     private boolean isCooldownReady() {
@@ -193,14 +191,15 @@ public class BakuretsuMahou extends AbilityComponent implements Listener {
     }
 
     private void applyAbilityCost() {
-        Objects.requireNonNull(this.manaView.get()).consumeMana(getAbilityManaCost());
-        this.cooldown.countDown(getAbilityCooldown());
+        manaView.consumeMana(getAbilityManaCost());
+        cooldown.countDown(getAbilityCooldown());
     }
 
     private int getAbilityReach() {
         final int EXPLOSION_TARGET_REACH = 200;
         return EXPLOSION_TARGET_REACH;
     }
+
     private double getAbilityCooldown() {
         final double BASE_COOLDOWN_IN_SECONDS = GameState.tickToSecond(24000);
         final double COOLDOWN_REDUCE_PERCENTAGE = 0.995;
@@ -210,7 +209,7 @@ public class BakuretsuMahou extends AbilityComponent implements Listener {
 
     private double getAbilityManaCost() {
         final double MANA_PERCENT_COST = 0.15;
-        return Objects.requireNonNull(manaView.get()).getMaxMana() * MANA_PERCENT_COST;
+        return manaView.getMaxMana() * MANA_PERCENT_COST;
     }
 
     public long getAbilityFireTick() {

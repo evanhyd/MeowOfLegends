@@ -18,15 +18,14 @@ import unboxthecat.meowoflegends.component.generic.ManaComponent;
 import unboxthecat.meowoflegends.component.generic.TimerComponent;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 
-import java.lang.ref.WeakReference;
 import java.util.*;
 
 public class BouncingFireball extends AbilityComponent implements Listener {
 
     private MOLEntity owner;
     private final TimerComponent cooldown;
-    private WeakReference<ManaComponent> manaView;
     private final Map<Projectile, Integer> fireballs;
+    private ManaComponent manaView;
 
     public BouncingFireball() {
         super(true);
@@ -52,20 +51,20 @@ public class BouncingFireball extends AbilityComponent implements Listener {
     public void onAttach(MOLEntity owner, Object... objects) {
         setUpAbilitySlot(owner);
         this.owner = owner;
-
         TimerComponent.TimerCallback callback = () -> {
             if (owner.getEntity() instanceof Player player) {
-                player.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
+                player.playSound(player, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
             }
         };
         this.cooldown.onAttach(owner, callback);
-        this.manaView = new WeakReference<>(Objects.requireNonNull(this.owner.getComponent(ManaComponent.class)));
+        this.manaView = Objects.requireNonNull(owner.getComponent(ManaComponent.class));;
         Bukkit.getServer().getPluginManager().registerEvents(this, GameState.getPlugin());
     }
 
     @Override
     public void onRemove(MOLEntity owner, Object... objects) {
         HandlerList.unregisterAll(this);
+        this.manaView = null;
         this.cooldown.onRemove(owner);
         this.owner = null;
         this.fireballs.forEach((fireball, bouncedTime) -> fireball.remove());
@@ -95,7 +94,7 @@ public class BouncingFireball extends AbilityComponent implements Listener {
     }
 
     private boolean isManaSufficient() {
-        return Objects.requireNonNull(this.manaView.get()).getMana() >= getAbilityManaCost();
+        return this.manaView.getMana() >= getAbilityManaCost();
     }
 
     private boolean isCooldownReady() {
@@ -103,7 +102,7 @@ public class BouncingFireball extends AbilityComponent implements Listener {
     }
 
     private void applyAbilityCost() {
-        Objects.requireNonNull(this.manaView.get()).consumeMana(getAbilityManaCost());
+        this.manaView.consumeMana(getAbilityManaCost());
         this.cooldown.countDown(getAbilityCooldown());
     }
 
