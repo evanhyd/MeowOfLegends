@@ -16,5 +16,4 @@ public class DebugCommand implements CommandExecutor {
         }
         return false;
     }
-
 }

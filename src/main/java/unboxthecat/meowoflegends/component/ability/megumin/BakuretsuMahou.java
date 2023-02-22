@@ -15,26 +15,26 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import unboxthecat.meowoflegends.utility.GameState;
 import unboxthecat.meowoflegends.component.base.AbilityComponent;
-import unboxthecat.meowoflegends.component.generic.TimerComponent;
 import unboxthecat.meowoflegends.component.generic.ManaComponent;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 import unboxthecat.meowoflegends.utility.Geometric;
+import unboxthecat.meowoflegends.utility.Timer;
 
 import java.util.*;
 
 public class BakuretsuMahou extends AbilityComponent implements Listener {
     private MOLEntity owner;
-    private final TimerComponent cooldown;
+    private final Timer cooldown;
     private ManaComponent manaView;
 
     public BakuretsuMahou() {
         super(true);
-        this.cooldown = new TimerComponent();
+        this.cooldown = new Timer();
     }
 
     public BakuretsuMahou(Map<String, Object> data) {
         super(true);
-        this.cooldown = (TimerComponent)(data.get("cooldown"));
+        this.cooldown = (Timer)(data.get("cooldown"));
     }
 
     @Override
@@ -48,21 +48,21 @@ public class BakuretsuMahou extends AbilityComponent implements Listener {
     public void onAttach(MOLEntity owner, Object... objects) {
         setUpAbilitySlot(owner);
         this.owner = owner;
-        TimerComponent.TimerCallback callback = () -> {
+        this.manaView = Objects.requireNonNull(owner.getComponent(ManaComponent.class));
+        this.cooldown.setCallback(() -> {
             if (owner.getEntity() instanceof Player player) {
                 player.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
             }
-        };
-        this.cooldown.onAttach(owner, callback);
-        this.manaView = Objects.requireNonNull(owner.getComponent(ManaComponent.class));
+        });
+        this.cooldown.resume();
         Bukkit.getServer().getPluginManager().registerEvents(this, GameState.getPlugin());
     }
 
     @Override
     public void onRemove(MOLEntity owner, Object... objects) {
         HandlerList.unregisterAll(this);
+        this.cooldown.pause();
         this.manaView = null;
-        this.cooldown.onRemove(owner);
         this.owner = null;
     }
 
@@ -98,7 +98,7 @@ public class BakuretsuMahou extends AbilityComponent implements Listener {
     }
 
     private boolean isCooldownReady() {
-        return cooldown.isReady();
+        return cooldown.isIdling();
     }
 
     private void explode() {
@@ -192,7 +192,7 @@ public class BakuretsuMahou extends AbilityComponent implements Listener {
 
     private void applyAbilityCost() {
         manaView.consumeMana(getAbilityManaCost());
-        cooldown.countDown(getAbilityCooldown());
+        cooldown.run(getAbilityCooldown(), false);
     }
 
     private int getAbilityReach() {
@@ -234,6 +234,6 @@ public class BakuretsuMahou extends AbilityComponent implements Listener {
 
     @Override
     public String toString() {
-        return super.toString() + cooldown.toString();
+        return super.toString() + "\n" + cooldown.toString();
     }
 }

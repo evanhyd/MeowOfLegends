@@ -16,10 +16,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import unboxthecat.meowoflegends.utility.GameState;
 import unboxthecat.meowoflegends.component.base.AbilityComponent;
-import unboxthecat.meowoflegends.component.generic.TimerComponent;
 import unboxthecat.meowoflegends.component.generic.ManaComponent;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 import unboxthecat.meowoflegends.tag.ability.fizz.SeaStoneTridentTag;
+import unboxthecat.meowoflegends.utility.Timer;
 
 import java.util.Map;
 import java.util.Objects;
@@ -29,17 +29,17 @@ import java.util.function.Predicate;
 //todo: proper damage and mana scaling for abilities
 public class UrchinStrike extends AbilityComponent implements Listener {
     private MOLEntity owner;
-    private final TimerComponent cooldown;
+    private final Timer cooldown;
     private ManaComponent manaView;
 
     public UrchinStrike() {
         super(true);
-        cooldown = new TimerComponent();
+        cooldown = new Timer();
     }
 
     public UrchinStrike(Map<String, Object> data){
         super(true);
-        cooldown = (TimerComponent) data.get("cooldown");
+        cooldown = (Timer) data.get("cooldown");
     }
 
     @NotNull
@@ -54,16 +54,16 @@ public class UrchinStrike extends AbilityComponent implements Listener {
     public void onAttach(MOLEntity owner, Object... objects) {
         setUpAbilitySlot(owner);
         this.owner = owner;
-        this.cooldown.onAttach(owner);
         this.manaView = Objects.requireNonNull(owner.getComponent(ManaComponent.class));
+        this.cooldown.resume();
         Bukkit.getServer().getPluginManager().registerEvents(this, GameState.getPlugin());
     }
 
     @Override
     public void onRemove(MOLEntity owner, Object... objects) {
         HandlerList.unregisterAll(this);
+        this.cooldown.pause();
         this.manaView = null;
-        this.cooldown.onRemove(owner);
         this.owner = null;
     }
 
@@ -95,7 +95,7 @@ public class UrchinStrike extends AbilityComponent implements Listener {
     }
 
     private boolean isCooldownReady(){
-        return cooldown.isReady();
+        return cooldown.isIdling();
     }
 
     private boolean hasSufficientMana(){
@@ -152,7 +152,7 @@ public class UrchinStrike extends AbilityComponent implements Listener {
 
     private void applyAbilityCost(){
         manaView.consumeMana(getAbilityManaCost());
-        cooldown.countDown(getAbilityCoolDownInSeconds());
+        cooldown.run(getAbilityCoolDownInSeconds(), false);
     }
 
     double getAbilityManaCost(){
@@ -167,6 +167,6 @@ public class UrchinStrike extends AbilityComponent implements Listener {
 
     @Override
     public String toString() {
-        return super.toString() + cooldown.toString();
+        return super.toString() + "\n" + cooldown.toString();
     }
 }

@@ -6,6 +6,7 @@ import unboxthecat.meowoflegends.component.ability.megumin.BakuretsuMahou;
 import unboxthecat.meowoflegends.component.ability.megumin.BouncingFireball;
 import unboxthecat.meowoflegends.component.generic.HealthComponent;
 import unboxthecat.meowoflegends.component.generic.ManaComponent;
+import unboxthecat.meowoflegends.component.generic.StatsBoardComponent;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 
 import java.util.Map;
@@ -15,6 +16,7 @@ public class Megumin extends MOLEntity {
 
     public Megumin(Entity entity) {
         super(entity);
+        attachComponent(new StatsBoardComponent());
         attachComponent(new HealthComponent(BASE_MAX_HEALTH, MAX_HEALTH_GROW_RATE, BASE_HEALTH_REGENERATION, HEALTH_REGENERATION_GROW_RATE));
         attachComponent(new ManaComponent(BASE_MAX_MANA, MAX_MANA_GROW_RATE, BASE_MANA_REGENERATION, MANA_REGENERATION_GROW_RATE));
         attachComponent(new BouncingFireball());
@@ -33,6 +35,7 @@ public class Megumin extends MOLEntity {
     @Override
     public void activate(Entity entity) {
         this.entity = entity;
+        Objects.requireNonNull(getComponent(StatsBoardComponent.class)).onAttach(this);
         Objects.requireNonNull(getComponent(HealthComponent.class)).onAttach(this);
         Objects.requireNonNull(getComponent(ManaComponent.class)).onAttach(this);
         Objects.requireNonNull(getComponent(BouncingFireball.class)).onAttach(this);
@@ -45,6 +48,7 @@ public class Megumin extends MOLEntity {
         Objects.requireNonNull(getComponent(BouncingFireball.class)).onRemove(this);
         Objects.requireNonNull(getComponent(ManaComponent.class)).onRemove(this);
         Objects.requireNonNull(getComponent(HealthComponent.class)).onRemove(this);
+        Objects.requireNonNull(getComponent(StatsBoardComponent.class)).onRemove(this);
     }
 
     @Override
@@ -53,6 +57,7 @@ public class Megumin extends MOLEntity {
         removeComponent(BouncingFireball.class);
         removeComponent(ManaComponent.class);
         removeComponent(HealthComponent.class);
+        removeComponent(StatsBoardComponent.class);
     }
 
     //Megumin Stats

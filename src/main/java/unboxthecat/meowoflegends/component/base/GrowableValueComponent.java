@@ -53,7 +53,7 @@ public abstract class GrowableValueComponent implements MOLComponent {
         "Value Regeneration Grow Rate: %.1f\n" +
         "Max Value: %.1f\n" +
         "Value Regeneration Rate: %.1f\n" +
-        "Current Value: %.1f\n",
+        "Current Value: %.1f",
         this.baseMaxValue, this.maxValueGrowRate, this.baseValueRegeneration, this.valueRegenerationGrowRate, this.maxValue, this.valueRegeneration, this.value);
     }
 }

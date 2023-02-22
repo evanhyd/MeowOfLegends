@@ -12,8 +12,8 @@ import org.jetbrains.annotations.NotNull;
 import unboxthecat.meowoflegends.utility.GameState;
 import unboxthecat.meowoflegends.component.base.AbilityComponent;
 import unboxthecat.meowoflegends.component.generic.ManaComponent;
-import unboxthecat.meowoflegends.component.generic.TimerComponent;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
+import unboxthecat.meowoflegends.utility.Timer;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -25,48 +25,45 @@ public class ChumTheWater extends AbilityComponent implements Listener {
     public static double channelingTime = 2;
     public static double damage = 2;
 
-    //serialize these data
     private MOLEntity owner;
-
-    private final TimerComponent timerComponent;
+    private final Timer timer;
 
     public ChumTheWater() {
         super(true);
-        timerComponent = new TimerComponent();
+        timer = new Timer();
     }
 
     public ChumTheWater(final double initialCoolDownInSeconds, final double initialManaCost) {
         super(true);
         coolDownInSeconds = initialCoolDownInSeconds;
         manaCost = initialManaCost;
-        timerComponent = new TimerComponent();
+        timer = new Timer();
     }
 
     @Override
     public void onAttach(MOLEntity owner, Object... objects) {
         setUpAbilitySlot(owner);
         this.owner = owner;
-        timerComponent.onAttach(this.owner);
+        timer.resume();
         Bukkit.getServer().getPluginManager().registerEvents(this, GameState.getPlugin());
     }
 
     @Override
     public void onRemove(MOLEntity owner, Object... objects) {
         HandlerList.unregisterAll(this);
-        timerComponent.onRemove(owner);
+        timer.pause();
     }
 
     @NotNull
     @Override
     public Map<String, Object> serialize() {
-        //todo: idk what to serialize
         Map<String, Object> data = new TreeMap<String, Object>();
         return data;
     }
 
     //something about making a shark jump up to eat a fish
     private boolean onCoolDown(){
-        return !timerComponent.isReady();
+        return !timer.isIdling();
     }
     private boolean hasMana(){
         ManaComponent manaComponent = owner.getComponent(ManaComponent.class);
@@ -83,7 +80,7 @@ public class ChumTheWater extends AbilityComponent implements Listener {
         ManaComponent manaComponent = owner.getComponent(ManaComponent.class);
         assert manaComponent != null;
         manaComponent.consumeMana(manaCost);
-        timerComponent.countDown(coolDownInSeconds);
+        timer.run(coolDownInSeconds, false);
     }
 
     private void chumTheWater(){
@@ -122,7 +119,4 @@ public class ChumTheWater extends AbilityComponent implements Listener {
             chumTheWater();
         }
     }
-
-
-
 }

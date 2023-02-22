@@ -9,8 +9,8 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import unboxthecat.meowoflegends.entity.character.Fizz;
-import unboxthecat.meowoflegends.utility.GameState;
 import unboxthecat.meowoflegends.entity.character.Megumin;
+import unboxthecat.meowoflegends.utility.GameState;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 
 import java.util.Objects;
@@ -28,11 +28,11 @@ public class MOLPlayerLoginHandler implements Listener {
             molEntity = Objects.requireNonNull(GameState.getConfig().getSerializable(uuid.toString(), MOLEntity.class));
             molEntity.activate(player);
         } else {
-            molEntity = new Fizz(player);
+            molEntity = new Megumin(player);
         }
 
         event.getPlayer().setGameMode(GameMode.CREATIVE);
-        event.getPlayer().getInventory().addItem(new ItemStack(Material.TRIDENT));
+        event.getPlayer().getInventory().addItem(new ItemStack(Material.BLAZE_ROD));
 
         GameState.getPlayers().put(uuid, molEntity);
     }

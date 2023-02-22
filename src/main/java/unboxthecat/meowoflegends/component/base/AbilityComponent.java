@@ -45,6 +45,6 @@ public abstract class AbilityComponent implements MOLComponent {
     @Override
     public String toString() {
         return "Active Ability: " + isActiveAbility + "\n" +
-               "Ability Slot: " + abilitySlot + "\n";
+               "Ability Slot: " + abilitySlot;
     }
 }

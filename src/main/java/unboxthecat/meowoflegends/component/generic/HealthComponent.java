@@ -148,7 +148,6 @@ public class HealthComponent extends GrowableValueComponent implements Listener 
 
     @Override
     public String toString() {
-        return super.toString() +
-                "Health Regeneration Task ID: " + this.healthRegenerationTask.getTaskId() + "\n";
+        return super.toString();
     }
 }

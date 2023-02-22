@@ -10,15 +10,13 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitScheduler;
 import org.jetbrains.annotations.NotNull;
 import unboxthecat.meowoflegends.utility.GameState;
 import unboxthecat.meowoflegends.component.base.AbilityComponent;
-import unboxthecat.meowoflegends.component.generic.TimerComponent;
 import unboxthecat.meowoflegends.component.generic.ManaComponent;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 import unboxthecat.meowoflegends.tag.ability.fizz.SeaStoneTridentTag;
+import unboxthecat.meowoflegends.utility.Timer;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -26,17 +24,17 @@ import java.util.TreeMap;
 //todo: proper damage and mana scaling for abilities
 public class SeaStoneTrident extends AbilityComponent implements Listener {
     private MOLEntity owner;
-    private final TimerComponent cooldown;
+    private final Timer cooldown;
     private ManaComponent manaView;
 
     public SeaStoneTrident() {
         super(true);
-        cooldown = new TimerComponent();
+        cooldown = new Timer();
     }
 
     public SeaStoneTrident(Map<String, Object> data){
         super(true);
-        cooldown = (TimerComponent) data.get("cooldown");
+        cooldown = (Timer) data.get("cooldown");
     }
 
     @NotNull
@@ -51,16 +49,16 @@ public class SeaStoneTrident extends AbilityComponent implements Listener {
     public void onAttach(MOLEntity owner, Object... objects) {
         setUpAbilitySlot(owner);
         this.owner = owner;
-        this.cooldown.onAttach(this.owner);
         this.manaView = owner.getComponent(ManaComponent.class); assert(manaView != null);
+        this.cooldown.resume();
         Bukkit.getServer().getPluginManager().registerEvents(this, GameState.getPlugin());
     }
 
     @Override
     public void onRemove(MOLEntity owner, Object... objects) {
         HandlerList.unregisterAll(this);
+        this.cooldown.pause();
         this.manaView = null;
-        this.cooldown.onRemove(owner);
         this.owner = null;
     }
 
@@ -91,12 +89,12 @@ public class SeaStoneTrident extends AbilityComponent implements Listener {
     }
 
     private boolean isCooldownReady(){
-        return cooldown.isReady();
+        return cooldown.isIdling();
     }
 
     private void applyAbilityCost() {
         manaView.consumeMana(getAbilityManaCost());
-        cooldown.countDown(getAbilityCoolDownInSeconds());
+        cooldown.run(getAbilityCoolDownInSeconds(), false);
     }
 
     private void seaStoneTrident() {
@@ -132,6 +130,6 @@ public class SeaStoneTrident extends AbilityComponent implements Listener {
 
     @Override
     public String toString() {
-        return super.toString() + cooldown.toString();
+        return super.toString() + "\n" + cooldown.toString();
     }
 }

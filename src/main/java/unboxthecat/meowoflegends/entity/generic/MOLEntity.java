@@ -173,19 +173,24 @@ public abstract class MOLEntity implements ConfigurationSerializable {
     @Override
     public String toString() {
         String entityInfo = "Name    : " + entity.getName() + "\n" +
-                            "UUID    : " + entity.getUniqueId() + "\n" +
-                            "Vehicle : " + (entity.getVehicle() == null ? "no vehicle" : entity.getVehicle().toString()) + "\n" +
-                            "FireTicks: " + entity.getFireTicks()+ "\n" +
-                            "FreezeTicks: " + entity.getFreezeTicks() + "\n";
+                            "UUID    : " + entity.getUniqueId() + "\n";
 
         StringBuilder componentsInfo = new StringBuilder();
-        components.forEach((name, component) -> componentsInfo.append(name).append(" :\n").append(component).append("\n"));
+        components.forEach((name, component) -> componentsInfo
+                .append(ChatColor.YELLOW)
+                .append(name).append(":\n")
+                .append(ChatColor.LIGHT_PURPLE)
+                .append(component).append("\n"));
 
         StringBuilder tagsInfo = new StringBuilder();
-        tags.forEach((name, component) -> tagsInfo.append(name).append(" :\n").append(component).append("\n"));
+        tags.forEach((name, component) -> tagsInfo
+                .append(ChatColor.YELLOW)
+                .append(name).append(" :\n")
+                .append(ChatColor.LIGHT_PURPLE)
+                .append(component).append("\n"));
 
-        return  ChatColor.BLUE + "EntityInfo:\n" + ChatColor.LIGHT_PURPLE + entityInfo + "\n" +
-                ChatColor.BLUE +  "ComponentsInfo:\n" + ChatColor.LIGHT_PURPLE + componentsInfo + "\n" +
-                ChatColor.BLUE + "TagsInfo:\n" + ChatColor.LIGHT_PURPLE + tagsInfo + "\n";
+        return  ChatColor.BLUE + "Entity:\n" + entityInfo + "\n" +
+                ChatColor.BLUE +  "Components:\n" + componentsInfo + "\n" +
+                ChatColor.BLUE + "Tags:\n" + tagsInfo + "\n";
     }
 }
