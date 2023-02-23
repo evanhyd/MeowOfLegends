@@ -1,6 +1,5 @@
 package unboxthecat.meowoflegends.component.generic;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.*;
 import org.jetbrains.annotations.NotNull;
@@ -8,16 +7,19 @@ import unboxthecat.meowoflegends.component.base.MOLComponent;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.TreeMap;
 
 public class StatsBoardComponent implements MOLComponent {
+    private final Map<String, String> statsEntryMap;
+    private Player player;
     private Objective stats;
 
     public StatsBoardComponent() {
+        this.statsEntryMap = new TreeMap<>();
     }
 
     public StatsBoardComponent(Map<String, Object> data) {
+        this.statsEntryMap = new TreeMap<>();
     }
 
     @NotNull
@@ -29,22 +31,35 @@ public class StatsBoardComponent implements MOLComponent {
 
     @Override
     public void onAttach(MOLEntity owner, Object... objects) {
-        if (owner.getEntity() instanceof Player player) {
-            player.setScoreboard(Objects.requireNonNull(Bukkit.getScoreboardManager()).getNewScoreboard());
-            this.stats = player.getScoreboard().registerNewObjective(player.getName() + " Stats Board", Criteria.DUMMY, "Stats");
-            this.stats.setDisplaySlot(DisplaySlot.SIDEBAR);
-        }
+        this.player = (Player) owner.getEntity();
+        render();
     }
 
     @Override
     public void onRemove(MOLEntity owner, Object... objects) {
-        if (owner.getEntity() instanceof Player player) {
-            player.setScoreboard(Objects.requireNonNull(Bukkit.getScoreboardManager()).getNewScoreboard());
-        }
+        this.stats.unregister();
+        this.stats = null;
+        this.player = null;
+        this.statsEntryMap.clear();
     }
 
-    public void setStats(String statsTitle, String statsData) {
-        stats.getScore(statsTitle + ": " + statsData).setScore(0);
+    public void set(String title, String content) {
+        statsEntryMap.put(title, title + ": " + content);
+        render();
+    }
+
+    public void remove(String title) {
+        statsEntryMap.remove(title);
+        render();
+    }
+
+    public void render() {
+        if (stats != null) {
+            stats.unregister();
+        }
+        stats = player.getScoreboard().registerNewObjective("StatsBoard", Criteria.DUMMY, "Stats");
+        stats.setDisplaySlot(DisplaySlot.SIDEBAR);
+        statsEntryMap.forEach((title, entry) -> stats.getScore(entry).setScore(0));
     }
 
     @Override

@@ -16,6 +16,7 @@ public class Timer implements ConfigurationSerializable {
     private long period;
     private boolean repeat;
     private long remainingTicks;
+    private boolean idle;
     private Callback callback;
     private BukkitTask task;
 
@@ -23,6 +24,7 @@ public class Timer implements ConfigurationSerializable {
         this.period = 0;
         this.repeat = false;
         this.remainingTicks = 0;
+        this.idle = true;
         this.callback = () -> {};
         this.task = null;
     }
@@ -31,6 +33,7 @@ public class Timer implements ConfigurationSerializable {
         this.period = Long.parseLong(data.get("period").toString());
         this.repeat = Boolean.parseBoolean(data.get("repeat").toString());
         this.remainingTicks = Long.parseLong(data.get("remainingTick").toString());
+        this.idle = Boolean.parseBoolean(data.get("idle").toString());
         this.callback = () -> {};
         this.task = null;
     }
@@ -42,6 +45,7 @@ public class Timer implements ConfigurationSerializable {
         data.put("period", period);
         data.put("repeat", repeat);
         data.put("remainingTick", remainingTicks);
+        data.put("idle", idle);
         return data;
     }
 
@@ -63,7 +67,8 @@ public class Timer implements ConfigurationSerializable {
         if (task != null) {
             task.cancel();
         }
-        remainingTicks = (this.period = GameState.secondToTick(periodInSeconds));
+        remainingTicks = (period = GameState.secondToTick(periodInSeconds));
+        assert remainingTicks != 0; //avoid a timer with no period
         repeat = shouldRepeat;
         runTaskTimer();
     }
@@ -71,11 +76,12 @@ public class Timer implements ConfigurationSerializable {
     public void pause() {
         if (task != null) {
             task.cancel();
+            task = null;
         }
     }
 
     public void resume() {
-        if (remainingTicks > 0) {
+        if (!idle) {
             runTaskTimer();
         }
     }
@@ -85,23 +91,24 @@ public class Timer implements ConfigurationSerializable {
     }
 
     public boolean isIdling() {
-        return task == null;
+        return idle;
     }
 
     private void runTaskTimer() {
+        idle = false;
+
         //callback may access spigot API, hence must be synchronized
         task = new BukkitRunnable() {
             @Override
             public void run() {
-                if (remainingTicks > 0) {
-                    --remainingTicks;
-                } else {
+                if (--remainingTicks <= 0) {
                     callback.run();
                     if (repeat) {
                         remainingTicks = period;
                     } else {
                         cancel();
                         task = null;
+                        idle = true;
                     }
                 }
             }

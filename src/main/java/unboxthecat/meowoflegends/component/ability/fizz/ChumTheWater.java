@@ -9,6 +9,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.jetbrains.annotations.NotNull;
+import unboxthecat.meowoflegends.component.generic.CooldownComponent;
 import unboxthecat.meowoflegends.utility.GameState;
 import unboxthecat.meowoflegends.component.base.AbilityComponent;
 import unboxthecat.meowoflegends.component.generic.ManaComponent;
@@ -26,32 +27,32 @@ public class ChumTheWater extends AbilityComponent implements Listener {
     public static double damage = 2;
 
     private MOLEntity owner;
-    private final Timer timer;
+    private final CooldownComponent abilityCooldown;
 
     public ChumTheWater() {
         super(true);
-        timer = new Timer();
+        abilityCooldown = new CooldownComponent(ChumTheWater.class.getSimpleName());
     }
 
     public ChumTheWater(final double initialCoolDownInSeconds, final double initialManaCost) {
         super(true);
         coolDownInSeconds = initialCoolDownInSeconds;
         manaCost = initialManaCost;
-        timer = new Timer();
+        abilityCooldown = new CooldownComponent(ChumTheWater.class.getSimpleName());
     }
 
     @Override
     public void onAttach(MOLEntity owner, Object... objects) {
         setUpAbilitySlot(owner);
         this.owner = owner;
-        timer.resume();
+        abilityCooldown.onRemove(owner);
         Bukkit.getServer().getPluginManager().registerEvents(this, GameState.getPlugin());
     }
 
     @Override
     public void onRemove(MOLEntity owner, Object... objects) {
         HandlerList.unregisterAll(this);
-        timer.pause();
+        abilityCooldown.onRemove(owner);
     }
 
     @NotNull
@@ -62,9 +63,6 @@ public class ChumTheWater extends AbilityComponent implements Listener {
     }
 
     //something about making a shark jump up to eat a fish
-    private boolean onCoolDown(){
-        return !timer.isIdling();
-    }
     private boolean hasMana(){
         ManaComponent manaComponent = owner.getComponent(ManaComponent.class);
         return manaComponent != null && manaComponent.getMana() >= manaCost;
@@ -80,7 +78,7 @@ public class ChumTheWater extends AbilityComponent implements Listener {
         ManaComponent manaComponent = owner.getComponent(ManaComponent.class);
         assert manaComponent != null;
         manaComponent.consumeMana(manaCost);
-        timer.run(coolDownInSeconds, false);
+        abilityCooldown.run(coolDownInSeconds, false);
     }
 
     private void chumTheWater(){
@@ -113,7 +111,7 @@ public class ChumTheWater extends AbilityComponent implements Listener {
             return;
         }
 
-        if(isUsingAbilitySlot(event.getPlayer()) && isUsingTrident(event.getAction()) && !onCoolDown() && hasMana()){
+        if(isUsingAbilitySlot(event.getPlayer()) && isUsingTrident(event.getAction()) && abilityCooldown.isReady() && hasMana()){
 
             applyCost();
             chumTheWater();
