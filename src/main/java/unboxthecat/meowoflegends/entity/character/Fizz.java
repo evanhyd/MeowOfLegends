@@ -17,9 +17,9 @@ public class Fizz extends MOLEntity {
         super(entity);
         attachComponent(new HealthComponent(BASE_MAX_HEALTH, MAX_HEALTH_GROW_RATE, BASE_HEALTH_REGENERATION, HEALTH_REGENERATION_GROW_RATE));
         attachComponent(new ManaComponent(BASE_MAX_MANA, MAX_MANA_GROW_RATE, BASE_MANA_REGENERATION, MANA_REGENERATION_GROW_RATE));
-        attachComponent(new UrchinStrike());
-        attachComponent(new SeaStoneTrident());
-        attachComponent(new ChumTheWater());
+        attachComponent(new UrchinStrike(0));
+        attachComponent(new SeaStoneTrident(1));
+        attachComponent(new ChumTheWater(2));
     }
 
     public Fizz(Map<String, Object> data) {

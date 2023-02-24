@@ -19,8 +19,8 @@ public class Megumin extends MOLEntity {
         attachComponent(new StatsBoardComponent());
         attachComponent(new HealthComponent(BASE_MAX_HEALTH, MAX_HEALTH_GROW_RATE, BASE_HEALTH_REGENERATION, HEALTH_REGENERATION_GROW_RATE));
         attachComponent(new ManaComponent(BASE_MAX_MANA, MAX_MANA_GROW_RATE, BASE_MANA_REGENERATION, MANA_REGENERATION_GROW_RATE));
-        attachComponent(new BouncingFireball());
-        attachComponent(new BakuretsuMahou());
+        attachComponent(new BouncingFireball(0));
+        attachComponent(new BakuretsuMahou(1));
     }
 
     public Megumin(Map<String, Object> data) {

@@ -23,7 +23,7 @@ public class ManaComponent extends GrowableValueComponent implements Listener {
         public void run() {
             ManaComponent.this.updateCurrentValue();
             ManaComponent.this.manaBar.setProgress(Math.min(1.0, Math.max(0.0, ManaComponent.this.value / ManaComponent.this.maxValue)));
-            ManaComponent.this.manaBar.setTitle(String.format("Mana %.1f (%.1f) / %.1f", ManaComponent.this.value, ManaComponent.this.valueRegeneration, ManaComponent.this.maxValue));
+            ManaComponent.this.manaBar.setTitle(String.format("Mana %.1f (%.1f) / %.1f", ManaComponent.this.value, ManaComponent.this.regeneration, ManaComponent.this.maxValue));
         }
     }
 
@@ -73,13 +73,13 @@ public class ManaComponent extends GrowableValueComponent implements Listener {
     protected void updateBaseValue() {
         int level = ((this.owner.getEntity() instanceof Player player) ? player.getLevel() : 0);
         this.maxValue = Math.max(0.0, this.baseMaxValue + this.maxValueGrowRate * level);
-        this.valueRegeneration = this.baseValueRegeneration + this.valueRegenerationGrowRate * level;
+        this.regeneration = this.baseRegeneration + this.regenerationGrowRate * level;
         this.value = Math.min(this.maxValue, Math.max(0.0, this.value));
     }
 
     @Override
     protected void updateCurrentValue() {
-        this.value = Math.min(this.maxValue, Math.max(0.0, this.value + this.valueRegeneration));
+        this.value = Math.min(this.maxValue, Math.max(0.0, this.value + this.regeneration));
     }
 
     @EventHandler
@@ -105,11 +105,11 @@ public class ManaComponent extends GrowableValueComponent implements Listener {
     }
 
     public double getBaseManaRegeneration() {
-        return this.baseValueRegeneration;
+        return this.baseRegeneration;
     }
 
     public double getManaRegenerationGrowRate() {
-        return this.valueRegenerationGrowRate;
+        return this.regenerationGrowRate;
     }
 
     public double getMaxMana() {
@@ -117,7 +117,7 @@ public class ManaComponent extends GrowableValueComponent implements Listener {
     }
 
     public double getManaRegeneration() {
-        return this.valueRegeneration;
+        return this.regeneration;
     }
 
     public double getMana() {
@@ -135,12 +135,12 @@ public class ManaComponent extends GrowableValueComponent implements Listener {
     }
 
     public void setBaseManaRegeneration(double baseManaRegeneration) {
-        this.baseValueRegeneration = baseManaRegeneration;
+        this.baseRegeneration = baseManaRegeneration;
         updateBaseValue();
     }
 
     public void setManaRegenerationGrowRate(double manaRegenerationGrowRate) {
-        this.valueRegenerationGrowRate = manaRegenerationGrowRate;
+        this.regenerationGrowRate = manaRegenerationGrowRate;
         updateBaseValue();
     }
 

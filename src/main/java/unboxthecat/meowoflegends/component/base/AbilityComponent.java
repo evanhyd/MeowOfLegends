@@ -1,50 +1,177 @@
 package unboxthecat.meowoflegends.component.base;
 
-import org.bukkit.entity.HumanEntity;
+import org.bukkit.Bukkit;
+import org.bukkit.Sound;
+import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import unboxthecat.meowoflegends.component.generic.StatsBoardComponent;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
+import unboxthecat.meowoflegends.utility.GameState;
+import unboxthecat.meowoflegends.utility.Timer;
 
-import java.util.Arrays;
+import java.util.Map;
+import java.util.Objects;
+import java.util.TreeMap;
 
 public abstract class AbilityComponent implements MOLComponent {
-    private final boolean isActiveAbility;
-    private int abilitySlot;
+  public interface CooldownCallback {
+    void run();
+  }
 
-    protected AbilityComponent(boolean isActiveAbility) {
-        this.isActiveAbility = isActiveAbility;
+  private final int slot;
+  private int level;
+  private int castToken;
+
+  //cooldown timer
+  private final Timer displayTimer;
+  private final Timer cooldownTimer;
+
+  protected AbilityComponent(int abilitySlot) {
+    slot = abilitySlot;
+    level = 0;
+    castToken = 1;
+    displayTimer = new Timer();
+    cooldownTimer = new Timer();
+  }
+
+  protected AbilityComponent(Map<String, Object> data) {
+    slot = (int) data.get("slot");
+    level = (int) data.get("level");
+    castToken = (int) data.get("castToken");
+    displayTimer = (Timer) data.get("displayTimer");
+    cooldownTimer = (Timer) data.get("cooldownTimer");
+  }
+
+  @NotNull
+  @Override
+  public Map<String, Object> serialize() {
+    Map<String, Object> data = new TreeMap<>();
+    data.put("slot", slot);
+    data.put("level", level);
+    data.put("castToken", castToken);
+    data.put("displayTimer", displayTimer);
+    data.put("cooldownTimer", cooldownTimer);
+    return data;
+  }
+
+  @Override
+  public void onAttach(MOLEntity owner, Object... objects) {
+    CooldownCallback cooldownCallback = (objects.length > 0) ? (CooldownCallback) objects[0] : () -> {};
+    Player player = (owner.getEntity() instanceof Player p) ? p : null;
+
+    //display cooldown on the scoreboard
+    if (player != null) {
+      displayTimer.setCallback(() -> {
+        String content = String.format("[%d/%d] %.1f", castToken, getMaxCastToken(), cooldownTimer.getRemainingSeconds());
+        Objects.requireNonNull(owner.getComponent(StatsBoardComponent.class)).set(getName(), content);
+      });
+      displayTimer.resume();
     }
 
-    /**
-     * Assign the first available item slot to the ability.
-     * This function should be called inside onAttach().
-     * @param molEntity the owner
-     */
-    protected void setUpAbilitySlot(MOLEntity molEntity) {
-        if (!isActiveAbility) {
-            return;
-        }
+    //execute actual cooldown timer
+    cooldownTimer.setCallback(() -> {
+      if (player != null) {
+        player.playSound(player, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
+        displayTimer.pause();
+        Objects.requireNonNull(owner.getComponent(StatsBoardComponent.class)).remove(getName());
+      }
+      cooldownCallback.run();
 
-        boolean[] availableSlot = new boolean[9];
-        Arrays.fill(availableSlot, true);
+      //charge until the cast tokens are full
+      if (++castToken < getMaxCastToken()) {
+        activateCooldown();
+      }
+    });
 
-        molEntity.getComponents().stream()
-                .filter(component -> component instanceof AbilityComponent && component != this)
-                .forEach(component -> availableSlot[((AbilityComponent) component).abilitySlot] = false);
-
-        for (int i = 0; i < availableSlot.length; ++i) {
-            if (availableSlot[i]) {
-                abilitySlot = i;
-                break;
-            }
-        }
+    //recharging token when loading for the first time
+    if (castToken < getMaxCastToken() && cooldownTimer.isIdling()) {
+      activateCooldown();
+    } else {
+      cooldownTimer.resume();
     }
+  }
 
-    protected boolean isUsingAbilitySlot(HumanEntity humanEntity) {
-        return humanEntity.getInventory().getHeldItemSlot() == abilitySlot;
-    }
+  @Override
+  public void onRemove(MOLEntity owner, Object... objects) {
+    cooldownTimer.pause();
+    displayTimer.pause();
+  }
 
-    @Override
-    public String toString() {
-        return "Active Ability: " + isActiveAbility + "\n" +
-               "Ability Slot: " + abilitySlot;
+  /**
+   * @return true if the ability is ready to use.
+   */
+  protected final boolean isReady() {
+    return castToken > 0;
+  }
+
+  protected final boolean isUsingSlot(int abilitySlot) {
+    return slot == abilitySlot;
+  }
+
+  protected final int getSlot() {
+    return slot;
+  }
+
+  protected final int getLevel() {
+    return level;
+  }
+
+  protected final int getCastToken() {
+    return castToken;
+  }
+
+  protected final double getRemainingCooldown() {
+    return cooldownTimer.getRemainingSeconds();
+  }
+
+  protected abstract String getName();
+
+  protected abstract int getMaxLevel();
+
+  protected abstract double getCooldown();
+
+  protected abstract int getMaxCastToken();
+
+  /**
+   * Put the ability into cooldown state.
+   * The ability will continue to recharge until it has max cast tokens.
+   */
+  private void activateCooldown() {
+    if (cooldownTimer.isIdling()) {
+      displayTimer.run(GameState.tickToSecond(1), true);
+      cooldownTimer.run(getCooldown(), false);
     }
+  }
+
+  /**
+   * Cast this ability.
+   * Apply cooldown state and cost cast token afterward.
+   */
+  protected final void castAbility() {
+    --castToken;
+    activateCooldown();
+
+    castAbilityBegin();
+    castAbilityImplementation();
+    castAbilityEnd();
+  }
+
+  /**
+   * castAbility() has 3 phases.
+   * Begin and End are for animation/sound or apply ability cost.
+   * Implementation is for the actual implementation.
+   */
+  protected abstract void castAbilityBegin();
+  protected abstract void castAbilityImplementation();
+  protected abstract void castAbilityEnd();
+
+  @Override
+  public String toString() {
+    return String.format(
+      "Name: %s\n" +
+      "Level: %d / %d\n" +
+      "Token: %d / %d\n" +
+      "Cooldown: %.1f / %.1f",
+      getName(), level, getMaxLevel(), castToken, getMaxCastToken(), cooldownTimer.getRemainingSeconds(), getCooldown());
+  }
 }

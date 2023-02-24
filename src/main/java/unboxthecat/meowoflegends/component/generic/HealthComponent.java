@@ -66,7 +66,7 @@ public class HealthComponent extends GrowableValueComponent implements Listener 
     protected void updateBaseValue() {
         int level = (owner.getEntity() instanceof Player player) ? player.getLevel() : 0;
         this.maxValue = this.baseMaxValue + this.maxValueGrowRate * level;
-        this.valueRegeneration = this.baseValueRegeneration + this.valueRegenerationGrowRate * level;
+        this.regeneration = this.baseRegeneration + this.regenerationGrowRate * level;
         maxHealthInstance.setBaseValue(this.maxValue);
     }
 
@@ -74,7 +74,7 @@ public class HealthComponent extends GrowableValueComponent implements Listener 
     protected void updateCurrentValue() {
         if (owner.getEntity() instanceof LivingEntity livingEntity) {
             if (!livingEntity.isDead()) {
-                double changeInHealth = livingEntity.getHealth() + valueRegeneration;
+                double changeInHealth = livingEntity.getHealth() + regeneration;
                 changeInHealth = Math.min(maxHealthInstance.getValue(), Math.max(0.0, changeInHealth));
                 livingEntity.setHealth(changeInHealth);
             }
@@ -101,11 +101,11 @@ public class HealthComponent extends GrowableValueComponent implements Listener 
     }
 
     public double getBaseHealthRegeneration() {
-        return this.baseValueRegeneration;
+        return this.baseRegeneration;
     }
 
     public double getHealthRegenerationGrowRate() {
-        return this.valueRegenerationGrowRate;
+        return this.regenerationGrowRate;
     }
 
     public double getMaxHealth() {
@@ -113,7 +113,7 @@ public class HealthComponent extends GrowableValueComponent implements Listener 
     }
 
     public double getHealthRegeneration() {
-        return this.valueRegeneration;
+        return this.regeneration;
     }
 
     public double getHealth() {
@@ -131,12 +131,12 @@ public class HealthComponent extends GrowableValueComponent implements Listener 
     }
 
     public void setBaseHealthRegeneration(double baseHealthRegeneration) {
-        this.baseValueRegeneration = baseHealthRegeneration;
+        this.baseRegeneration = baseHealthRegeneration;
         updateBaseValue();
     }
 
     public void setHealthRegenerationGrowRate(double healthRegenerationGrowRate) {
-        this.valueRegenerationGrowRate = healthRegenerationGrowRate;
+        this.regenerationGrowRate = healthRegenerationGrowRate;
         updateBaseValue();
     }
 

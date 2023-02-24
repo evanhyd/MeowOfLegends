@@ -102,7 +102,6 @@ public class Timer implements ConfigurationSerializable {
             @Override
             public void run() {
                 if (--remainingTicks <= 0) {
-                    callback.run();
                     if (repeat) {
                         remainingTicks = period;
                     } else {
@@ -110,6 +109,7 @@ public class Timer implements ConfigurationSerializable {
                         task = null;
                         idle = true;
                     }
+                    callback.run();
                 }
             }
         }.runTaskTimer(GameState.getPlugin(), 0, 1L);

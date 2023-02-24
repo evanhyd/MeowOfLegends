@@ -10,7 +10,6 @@ import unboxthecat.meowoflegends.component.ability.megumin.BouncingFireball;
 import unboxthecat.meowoflegends.component.ability.fizz.UrchinStrike;
 import unboxthecat.meowoflegends.component.base.AbilityComponent;
 import unboxthecat.meowoflegends.component.base.MOLComponent;
-import unboxthecat.meowoflegends.component.generic.CooldownComponent;
 import unboxthecat.meowoflegends.component.generic.HealthComponent;
 import unboxthecat.meowoflegends.component.generic.ManaComponent;
 import unboxthecat.meowoflegends.component.generic.StatsBoardComponent;
@@ -54,7 +53,6 @@ public final class MeowOfLegends extends JavaPlugin {
         ConfigurationSerialization.registerClass(ManaComponent.class);
         ConfigurationSerialization.registerClass(HealthComponent.class);
         ConfigurationSerialization.registerClass(StatsBoardComponent.class);
-        ConfigurationSerialization.registerClass(CooldownComponent.class);
 
         //Tag class
         ConfigurationSerialization.registerClass(MOLTag.class);
