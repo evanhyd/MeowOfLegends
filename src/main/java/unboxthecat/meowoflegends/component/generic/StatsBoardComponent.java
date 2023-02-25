@@ -3,7 +3,6 @@ package unboxthecat.meowoflegends.component.generic;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.*;
 import org.jetbrains.annotations.NotNull;
-import unboxthecat.meowoflegends.component.base.MOLComponent;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 
 import java.util.Map;

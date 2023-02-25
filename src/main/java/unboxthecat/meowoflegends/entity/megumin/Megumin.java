@@ -1,9 +1,9 @@
-package unboxthecat.meowoflegends.entity.character;
+package unboxthecat.meowoflegends.entity.megumin;
 
 import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.NotNull;
-import unboxthecat.meowoflegends.component.ability.megumin.BakuretsuMahou;
-import unboxthecat.meowoflegends.component.ability.megumin.BouncingFireball;
+import unboxthecat.meowoflegends.component.megumin.BakuretsuMahou;
+import unboxthecat.meowoflegends.component.megumin.BouncingFireball;
 import unboxthecat.meowoflegends.component.generic.HealthComponent;
 import unboxthecat.meowoflegends.component.generic.ManaComponent;
 import unboxthecat.meowoflegends.component.generic.StatsBoardComponent;

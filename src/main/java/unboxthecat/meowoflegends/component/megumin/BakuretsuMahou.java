@@ -1,4 +1,4 @@
-package unboxthecat.meowoflegends.component.ability.megumin;
+package unboxthecat.meowoflegends.component.megumin;
 
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -11,7 +11,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
-import unboxthecat.meowoflegends.component.base.AbilityComponent;
+import unboxthecat.meowoflegends.component.generic.AbilityComponent;
 import unboxthecat.meowoflegends.component.generic.ManaComponent;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 import unboxthecat.meowoflegends.utility.GameState;

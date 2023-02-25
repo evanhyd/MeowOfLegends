@@ -1,12 +1,13 @@
-package unboxthecat.meowoflegends.entity.character;
+package unboxthecat.meowoflegends.entity.fizz;
 
 import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.NotNull;
-import unboxthecat.meowoflegends.component.ability.fizz.ChumTheWater;
-import unboxthecat.meowoflegends.component.ability.fizz.SeaStoneTrident;
-import unboxthecat.meowoflegends.component.ability.fizz.UrchinStrike;
+import unboxthecat.meowoflegends.component.fizz.ChumTheWater;
+import unboxthecat.meowoflegends.component.fizz.SeaStoneTrident;
+import unboxthecat.meowoflegends.component.fizz.UrchinStrike;
 import unboxthecat.meowoflegends.component.generic.HealthComponent;
 import unboxthecat.meowoflegends.component.generic.ManaComponent;
+import unboxthecat.meowoflegends.component.generic.StatsBoardComponent;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 
 import java.util.Map;
@@ -15,6 +16,7 @@ import java.util.Objects;
 public class Fizz extends MOLEntity {
     public Fizz(Entity entity) {
         super(entity);
+        attachComponent(new StatsBoardComponent());
         attachComponent(new HealthComponent(BASE_MAX_HEALTH, MAX_HEALTH_GROW_RATE, BASE_HEALTH_REGENERATION, HEALTH_REGENERATION_GROW_RATE));
         attachComponent(new ManaComponent(BASE_MAX_MANA, MAX_MANA_GROW_RATE, BASE_MANA_REGENERATION, MANA_REGENERATION_GROW_RATE));
         attachComponent(new UrchinStrike(0));
@@ -34,6 +36,7 @@ public class Fizz extends MOLEntity {
     @Override
     public void activate(Entity entity) {
         this.entity = entity;
+        Objects.requireNonNull(getComponent(StatsBoardComponent.class)).onAttach(this);
         Objects.requireNonNull(getComponent(HealthComponent.class)).onAttach(this);
         Objects.requireNonNull(getComponent(ManaComponent.class)).onAttach(this);
         Objects.requireNonNull(getComponent(UrchinStrike.class)).onAttach(this);
@@ -48,6 +51,7 @@ public class Fizz extends MOLEntity {
         Objects.requireNonNull(getComponent(UrchinStrike.class)).onRemove(this);
         Objects.requireNonNull(getComponent(ManaComponent.class)).onRemove(this);
         Objects.requireNonNull(getComponent(HealthComponent.class)).onRemove(this);
+        Objects.requireNonNull(getComponent(StatsBoardComponent.class)).onRemove(this);
     }
 
     @Override
@@ -57,6 +61,7 @@ public class Fizz extends MOLEntity {
         removeComponent(UrchinStrike.class);
         removeComponent(ManaComponent.class);
         removeComponent(HealthComponent.class);
+        removeComponent(StatsBoardComponent.class);
     }
 
     //Fizz Stats

@@ -1,9 +1,6 @@
-package unboxthecat.meowoflegends.component.ability.fizz;
+package unboxthecat.meowoflegends.component.fizz;
 
-import org.bukkit.Bukkit;
-import org.bukkit.FluidCollisionMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
@@ -11,25 +8,30 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityToggleGlideEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import unboxthecat.meowoflegends.component.base.AbilityComponent;
+import unboxthecat.meowoflegends.component.generic.AbilityComponent;
 import unboxthecat.meowoflegends.component.generic.ManaComponent;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
-import unboxthecat.meowoflegends.tag.ability.fizz.SeaStoneTridentTag;
+import unboxthecat.meowoflegends.tag.fizz.IsUsingUrchinStrike;
+import unboxthecat.meowoflegends.tag.fizz.SeaStoneTridentTag;
 import unboxthecat.meowoflegends.utility.GameState;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Predicate;
 
 public class UrchinStrike extends AbilityComponent implements Listener {
   private MOLEntity owner;
   private ManaComponent manaView;
-
   private LivingEntity target;
 
   public UrchinStrike(int abilitySlot) {
@@ -74,7 +76,7 @@ public class UrchinStrike extends AbilityComponent implements Listener {
 
   @Override
   protected double getCooldown() {
-    final double[] COOLDOWN = {20.0, 15.0, 10.0};
+    final double[] COOLDOWN = {15.0, 12.0, 9.0};
     return COOLDOWN[getLevel()];
   }
 
@@ -92,6 +94,11 @@ public class UrchinStrike extends AbilityComponent implements Listener {
     return 10.0;
   }
 
+  protected double getDamage() {
+    final double[] DAMAGE = {5.0, 7.0, 9.0};
+    return DAMAGE[getLevel()];
+  }
+
   @Override
   protected void castAbilityBegin() {
     manaView.consumeMana(getManaCost());
@@ -99,36 +106,48 @@ public class UrchinStrike extends AbilityComponent implements Listener {
 
   @Override
   protected void castAbilityImplementation() {
-    HumanEntity player = (HumanEntity) owner.getEntity();
-    Vector direction = player.getEyeLocation().getDirection();
+    HumanEntity humanEntity = (HumanEntity) owner.getEntity();
+    humanEntity.getWorld().playSound(humanEntity.getLocation(), Sound.BLOCK_WATER_AMBIENT, 1.0f, 1.0f);
 
-    if (direction.getY() * 4 > 1) {
-      direction.setY((direction.getX() + direction.getZ()) / 8);
-      direction.normalize();
-    }
+    Set<Entity> damaged = new HashSet<>();
+    humanEntity.setGliding(true);
+    humanEntity.setCollidable(false);
+    owner.attachTag(new IsUsingUrchinStrike());
 
-    //this doesn't do anything, since player's gravity if restore back to normal in the next few nano seconds
-    //consider using Bukkit Task Scheduler
-    player.setGravity(false);
-    player.setVelocity(direction.multiply(4).clone());
-    player.setGravity(true);
+    final BukkitTask dashingTask = Bukkit.getScheduler().runTaskTimer(GameState.getPlugin(), () -> {
+      humanEntity.getNearbyEntities(1.0, 1.0, 1.0).stream()
+        .filter(entity -> entity instanceof LivingEntity)
+        .filter(entity -> !damaged.contains(entity))
+        .forEach(entity -> {
+          ((LivingEntity) entity).damage(getDamage(), owner.getEntity());
+          damaged.add(entity);
+        });
+    }, 0, 1);
 
-    //do damage
-    target.damage(20.0, player);
+    //what if other abilities make it glide?
+    Bukkit.getScheduler().runTaskLater(GameState.getPlugin(), () -> {
+      dashingTask.cancel();
+      owner.removeTag(IsUsingUrchinStrike.class);
+      humanEntity.setCollidable(true);
+      humanEntity.setGliding(false);
+      humanEntity.setVelocity(new Vector());
+      damaged.clear();
+    }, GameState.secondToTick(0.5));
 
-    //on hit from SeaStoneTrident(fizz w)
-    SeaStoneTridentTag tag = owner.getTag(SeaStoneTridentTag.class);
-    if (tag != null) {
-      target.damage(20.0, player);
-      //set some effect
-      target.setFireTicks(100);
-    }
-    owner.removeTag(SeaStoneTridentTag.class);
+    humanEntity.setVelocity(humanEntity.getEyeLocation().getDirection().multiply(1.5));
   }
 
   @Override
   protected void castAbilityEnd() {
     target = null;
+  }
+
+  @EventHandler
+  public void onUrchinStrikeAnimation(EntityToggleGlideEvent event) {
+    if (event.getEntity() == owner.getEntity() &&
+      owner.hasTag(IsUsingUrchinStrike.class)) {
+      event.setCancelled(true);
+    }
   }
 
   @EventHandler
@@ -156,14 +175,14 @@ public class UrchinStrike extends AbilityComponent implements Listener {
 
   @Nullable
   private Entity getReachTarget() {
-    HumanEntity humanEntity = (HumanEntity) owner.getEntity();
-    Vector direction = humanEntity.getEyeLocation().getDirection();
-    Location startLocation = humanEntity.getEyeLocation().add(direction.multiply(0.5));
+    final Predicate<Entity> selectLivingEntity = entity -> entity instanceof LivingEntity && entity != owner.getEntity();
 
-    Predicate<Entity> ignoreOwner = entity -> entity instanceof LivingEntity && entity != humanEntity;
+    HumanEntity humanEntity = (HumanEntity) owner.getEntity();
+    Location start = humanEntity.getEyeLocation();
 
     RayTraceResult hitTarget = humanEntity.getWorld().rayTrace(
-      startLocation, direction, getReach(), FluidCollisionMode.NEVER, true, 1.0, ignoreOwner
+      start, start.getDirection(), getReach(),
+      FluidCollisionMode.NEVER, true, 1.0, selectLivingEntity
     );
     return hitTarget == null ? null : hitTarget.getHitEntity();
   }

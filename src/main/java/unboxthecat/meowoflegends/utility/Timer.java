@@ -8,6 +8,10 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Map;
 import java.util.TreeMap;
 
+/**
+ * A customized timer that supports callback and serialization.
+ * Internally, it uses Spigot's task schedulers.
+ */
 public class Timer implements ConfigurationSerializable {
     public interface Callback {
         void run();
@@ -59,7 +63,7 @@ public class Timer implements ConfigurationSerializable {
     }
 
     /**
-     * Abandon the previous task timer, and start a new timer with given configuration.
+     * Cancel the previous task timer, and start a new timer with given configuration.
      * @param periodInSeconds timer period in seconds
      * @param shouldRepeat true if the period repeats
      */
@@ -68,11 +72,13 @@ public class Timer implements ConfigurationSerializable {
             task.cancel();
         }
         remainingTicks = (period = GameState.secondToTick(periodInSeconds));
-        assert remainingTicks != 0; //avoid a timer with no period
         repeat = shouldRepeat;
         runTaskTimer();
     }
 
+    /**
+     * Pause the timer.
+     */
     public void pause() {
         if (task != null) {
             task.cancel();
@@ -80,16 +86,25 @@ public class Timer implements ConfigurationSerializable {
         }
     }
 
+    /**
+     * Try resuming the task if there was any.
+     */
     public void resume() {
         if (!idle) {
             runTaskTimer();
         }
     }
 
+    /**
+     * @return the remaining time in seconds.
+     */
     public double getRemainingSeconds() {
         return GameState.tickToSecond(remainingTicks);
     }
 
+    /**
+     * @return true if the timer has no scheduled tasks.
+     */
     public boolean isIdling() {
         return idle;
     }

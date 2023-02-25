@@ -1,10 +1,8 @@
-package unboxthecat.meowoflegends.component.base;
+package unboxthecat.meowoflegends.component.generic;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import unboxthecat.meowoflegends.component.generic.StatsBoardComponent;
 import unboxthecat.meowoflegends.entity.generic.MOLEntity;
 import unboxthecat.meowoflegends.utility.GameState;
 import unboxthecat.meowoflegends.utility.Timer;
@@ -83,9 +81,9 @@ public abstract class AbilityComponent implements MOLComponent {
       }
     });
 
-    //recharging token when loading for the first time
-    if (castToken < getMaxCastToken() && cooldownTimer.isIdling()) {
-      activateCooldown();
+    //recharge tokens when loading for the first time
+    if (cooldownTimer.isIdling()) {
+      castToken = getMaxCastToken();
     } else {
       cooldownTimer.resume();
     }
@@ -137,9 +135,17 @@ public abstract class AbilityComponent implements MOLComponent {
    * The ability will continue to recharge until it has max cast tokens.
    */
   private void activateCooldown() {
-    if (cooldownTimer.isIdling()) {
+    final double cooldown = getCooldown();
+    final long tick = GameState.secondToTick(cooldown);
+
+    //ability with no cooldown does not trigger timer
+    if (tick == 0) {
+      castToken = getMaxCastToken();
+    } else if(cooldownTimer.isIdling()) {
+      //trigger timer if not already running
+      //for example, cast Bouncing Fireball twice in a row should not start another timer
       displayTimer.run(GameState.tickToSecond(1), true);
-      cooldownTimer.run(getCooldown(), false);
+      cooldownTimer.run(cooldown, false);
     }
   }
 
@@ -158,7 +164,7 @@ public abstract class AbilityComponent implements MOLComponent {
 
   /**
    * castAbility() has 3 phases.
-   * Begin and End are for animation/sound or apply ability cost.
+   * Begin and End are useful for loading resources.
    * Implementation is for the actual implementation.
    */
   protected abstract void castAbilityBegin();
